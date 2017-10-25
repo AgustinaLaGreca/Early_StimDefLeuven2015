@@ -1,4 +1,4 @@
-function P2=makestimHAR(P);
+function P2=makestimSCHR(P);
 % MakestimARMIN - stimulus generator for ARMIN stimGUI
 %    P=MakestimARMIN(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimARMIN is typically called by StimGuiAction when
@@ -34,15 +34,23 @@ figh = P.handle.GUIfig;
 % check & convert params. Note that helpers like evalfrequencyStepper
 % report any problems to the GUI and return [] or false in case of problems.
 
-% F01
-% if ~(P.StartNHN < P.StepNHN && P.StepNHN > P.EndNHN && P.EndNHN < P.StartNHN)
-%     GUImessage(figh, 'EndNHN < StartNHN < StepNHN', 'error', {'StartNHN' 'StepNHN' 'EndNHN' });
-% end
-P.Fcar=EvalFrequencyHARHAR(figh, '', P); 
+
+P.Fcar=EvalFrequencyStepperSCHR(figh, '', P); 
+if strcmp(P.TypePanel,'F0')
+invalid = P.HarLow*P.Fcar > P.FreqHigh;
+if invalid
+    Mess = {['Specified lowest harmonic number ' num2str(P.HarLow) ' of fundamental frequencies ' num2str(P.Fcar(invalid)') 'Hz' ' is greater than specified highest frequency limit ' num2str(P.FreqHigh) 'Hz.'],...
+        'Increase highest frequency limit or decrease lowest harmonic number or change range of studied fundamental frequencies '};
+    GUImessage(figh, Mess, 'error', {'HarLow' 'FreqHigh' 'StartFreq' 'StepFreq' 'EndFreq'});
+end
+end
 if isempty(P.Fcar), return; end
 Ncond = size(P.Fcar,1); % # conditions
 
 P.WavePhase = 0;
+
+P.C = EvalSCHR(figh,'',P);
+if isempty(P.C), return; end
 
 % split ITD in different types
 [P.FineITD, P.GateITD, P.ModITD] = ITDparse(P.ITD, P.ITDtype);
@@ -50,18 +58,16 @@ P.WavePhase = 0;
 % no heterodyning for this protocol
 [P.IFD, P.IPD] = deal(0); % zero interaural frequency difference
 
-% SPL
-SPL=EvalSPLstepper(figh, '', P); 
-if isempty(SPL), return; end
 
-% mix Freq & SPL sweeps; # conditions = # Freqs times # SPLs. By
+
+% mix Freq & SPL sweeps; # conditions = # Freqs times # Phase shift speed C. By
 % convention, freq is updated faster. 
-[P.Fcar, P.SPL, P.Ncond_XY] = MixSweeps(P.Fcar, SPL);
+[P.Fcar, P.C, P.Ncond_XY] = MixSweeps(P.Fcar, P.C);
 maxNcond = P.Experiment.maxNcond;
 if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
-    GUImessage(figh, Mess, 'error', {'StartFreq' 'StepFreq' 'EndFreq' 'StartSPL' 'StepSPL' 'EndSPL' });
+    GUImessage(figh, Mess, 'error', {'StartFreq' 'StepFreq' 'EndFreq' 'StartC' 'StepC' 'EndC' });
 end
 
 % Process visiting order of stimulus conditions
@@ -72,15 +78,14 @@ if isempty(VisitOrder), return; end
 okay=EvalDurPanel(figh, P, P.Ncond_XY);
 if ~okay, return; end
 
-% Check the distortion, noise and phase panels\
-P = EvalHARHAR(P,figh);
+
 
 % Determine sample rate and actually generate the calibrated waveforms
-P = HARHARStim(P); % P contains both Experiment (calib etc) & params, including P.Fcar 
+P = SCHRStim(P); % P contains both Experiment (calib etc) & params, including P.Fcar 
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
-P = sortConditions(P, {'Fcar' 'SPL'}, {'Carrier frequency' 'Carrier Intensity'}, ...
-    {'Hz' 'dB SPL'}, {'Hz' 'Linear'});
+P = sortConditions(P, {'Fcar' 'C'}, {'Carrier frequency' 'Carrier Intensity'}, ...
+    {'Hz' 'rad'}, {'Hz' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
