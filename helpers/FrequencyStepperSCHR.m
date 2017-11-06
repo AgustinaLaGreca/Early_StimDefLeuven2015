@@ -51,14 +51,18 @@ switch EXP.AudioChannelsUsed,
     case 'Right', DACstr = {Rstr};
     case 'Both', DACstr = {Lstr Rstr 'Both'};
 end
-
+if isequal('nobinaural', Flag2), % fixed monuaral, indep of experiment: reduce width
+    FreqEditSizeString = '15000.5';
+else,
+    FreqEditSizeString = '15000.5 15000.5';
+end
 %==========frequency GUIpanel=====================
 Fsweep = GUIpanel('Fsweep', T);
 TypePanel = ParamQuery([Prefix 'TypePanel'], 'Panel Type:', '', {'F0' 'Harmonic Number'}, ...
     '', ['Choose how you want to introduce the data.'], 1,'Fontsiz', 11);
-StartFreq = ParamQuery([Prefix 'StartFreq'], 'Start:', '15000.5 15000.5', 'Hz or #', ...
+StartFreq = ParamQuery([Prefix 'StartFreq'], 'Start:', FreqEditSizeString, 'Hz or #', ...
     'rreal/positive', ['Starting frequency of series. If type of panel chosen is Harmonics Number, it is equal to starting CF/F0' PairStr], Nchan);
-StepFreq = ParamQuery([Prefix 'StepFreq'], 'Step:', '12000', 'Hz or #', ...
+StepFreq = ParamQuery([Prefix 'StepFreq'], 'Step:', '12000 12000', 'Hz or #', ...
     'rreal/positive', ['Frequency step of series. If type of panel chosen is Harmonics Number, it is equal to step CF/F0.' PairStr], Nchan);
 EndFreq = ParamQuery([Prefix 'EndFreq'], 'End:', '12000.1 12000.1', 'Hz or #', ...
     'rreal/positive', ['Last frequency of series. If type of panel chosen is Harmonics Number, it is equal to end CF/F0' PairStr], Nchan);
