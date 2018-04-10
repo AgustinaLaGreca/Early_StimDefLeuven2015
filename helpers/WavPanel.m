@@ -33,6 +33,8 @@ WavFiles = marginalize(WavFiles, [0 3]);
 
 
 function local_dialog
+figh = gcbf;
+figh = figh.Number; % added by Jan (2018) to fix handle error
 Q = getGUIdata(gcbf, 'Query');
 [FileName,PathName] = uigetfile('*.wavList','Select the wavList file');
 he = edithandle(Q('WavList'));
