@@ -62,10 +62,13 @@ end
 pause(10);
 if isequal(Proc,'Geisler'), SpikeCrit = dum; end;
 if SpikeCrit == 0, SpikeCrit = 1; end
-SRStr = ['SR = ' num2str(SR) ' spikes/s'];
+SRStr = ['SR = ' num2str(round(SR,2)) ' spikes/s'];
+SR
+round(SR,2)
 THRStr = '';
 % Create plot
 Thr = nan(size(Freq));
+Thr_lim = nan(size(Freq)); % added by Jan (April 2018)
 if isempty(thr_fig) || ~ishandle(thr_fig)
     thr_fig = figure;
     open_figures(end+1) = thr_fig;
@@ -73,7 +76,13 @@ else
    figure(thr_fig);
    clf;
 end
-h = semilogx(Freq,Thr,'-sb','YDataSource','Thr');
+
+% h = semilogx(Freq,Thr,'-sb','YDataSource','Thr');
+h = semilogx(Freq,[Thr Thr_lim],'-sb'); % added by Jan (April 2018) -> to plot limits
+h(1).YDataSource = 'Thr'; % added by Jan (April 2018)
+h(2).YDataSource = 'Thr_lim'; % added by Jan (April 2018)
+h(1).Color = 'b';h(1).Marker = 'square'; % added by Jan (April 2018)
+h(2).Color = [.3 .3 .3];h(2).Marker = 'x'; % added by Jan (April 2018)
 x = logspace(log10(min(Freq)),log10(max(Freq)),10);
 set(gca,'xtick',x); 
 set(gca,'xticklabel',x);
@@ -107,16 +116,29 @@ for ifreq=ifreqs,
     end
     ic = (1+(ifreq-1)*NbSPL:ifreq*NbSPL)';
     % Get correct LinAmp and Attenuations
+    
+    % Changed by Jan (April 2018) - THR limits from calib included
+    W = P.Waveform;
+    EXP = P.Experiment;
+    [MaxSPL, Atten] = maxSPL(W, EXP);
     SPL = P.SPLs;
-    LinAmp = P.LinAmp(ic,:);
-    Attenuation = P.Attenuations(ic,:);
+    SPL = SPL(SPL < MaxSPL(ifreq));
+    LinAmp = P.LinAmp(1:length(SPL),:);
+    Attenuation = P.Attenuations(1:length(SPL),:);
+    Thr_lim(ifreq) = SPL(end); % added by Jan (April 2018) to plot the limit
+    
+%     % Original (before Jan 2018)
+%     SPL = P.SPLs;
+%     LinAmp = P.LinAmp(ic,:);
+%     Attenuation = P.Attenuations(ic,:);
+    
     if ~strcmp(Proc,'Marcel');
         S(ifreq) = feval(['THRrec_' Proc], dev, P.Experiment, Freq(ifreq), BurstDur, ...
-            MinSPL, MaxSPL, dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
+            MinSPL, MaxSPL(ifreq), dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
             SPL, Attenuation, LinAmp, P.GUIhandle,P.ISI);
     else
         S(ifreq) = feval(['THRrec_' Proc], dev, P.Experiment, Freq(ifreq), BurstDur, ...
-            MinSPL, MaxSPL, dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
+            MinSPL, MaxSPL(ifreq), dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
             SPL, Attenuation, LinAmp, P.GUIhandle);
     end
     if ~isnan(S(ifreq).Thr),
@@ -135,7 +157,11 @@ for ifreq=ifreqs,
     THRStr = ['THR = ' num2str(THR) ' dB SPL @ ' num2str(round(Freq(imin))) ' Hz'];
     set(ht,'String',THRStr);
     % Refresh plot
-    refreshdata(h,'caller') % Evaluate y in the function workspace
+%     refreshdata(h,'caller') 
+    refreshdata(h(1),'caller') % Evaluate y in the function workspace (Jan 2018)
+    refreshdata(h(2),'caller') % Evaluate y in the function workspace (Jan 2018)
+
+    % Evaluate y in the function workspace
     drawnow
     % save data
     DS = addThr(DS,Thr);
