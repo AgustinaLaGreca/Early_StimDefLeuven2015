@@ -1,6 +1,6 @@
 function Pres = PresentationPanelCAP
-P = genpath('C:/EARLY/vs10');
-addpath(P)
+% P = genpath('C:/EARLY/vs10');
+% addpath(P) % removed by Jan 2018
 
 BeginSPL = ParamQuery('BeginSPL', 'Start Level:', '60', 'dB SPL', ...
     'rreal/positive', 'SPL to start recording with.',1);
