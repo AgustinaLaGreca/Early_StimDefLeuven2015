@@ -18,7 +18,7 @@ Dur = DurPanel('-', EXP, '', 'nophase'); % exclude phase query in Dur panel
 Dur = sameextent(Dur,SAMsweep,'X'); % adjust width
 
 % Noise
-Noise = NoisePanel('Noise', EXP);
+Noise = NoisePanel('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
 % ---Pres
 Pres = PresentationPanel;
 Pres = sameextent(Pres,Noise,'X'); % adjust width

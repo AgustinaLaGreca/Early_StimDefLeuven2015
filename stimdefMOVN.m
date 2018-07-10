@@ -12,7 +12,7 @@ function Params = stimdefMOVN(EXP);
 %    See also stimGUI, stimDefDir, Experiment, makestimMOVN.
 
 % ---Noise
-Noise = NoisePanel('Noise parameters', EXP,'',{'ConstNoiseSeed';'Reverse'}); % include SPL etc; exclude seed; 'mono' not available in this EARLY version
+Noise = NoisePanel('Noise parameters', EXP,'',{'ConstNoiseSeed';'Reverse'}); % include SPL etc; exclude seed and reverse option; 'mono' not available in this EARLY version
 % ---NoiseSeed
 NoiseSeed = SeedStepper('Noise seed', EXP);
 % ---Interaural speed
