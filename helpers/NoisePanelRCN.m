@@ -11,7 +11,7 @@ function NP=NoisePanelRCN(T, EXP, Prefix);
 %         NoiseSeed: random seed used for realization of noise waveform
 %              Corr: interaural correlation with toggle (C|I)  
 %  
-%   A messenger fo reporting the maximum SPL is also created.
+%   A messenger for reporting the maximum SPL is also created.
 %
 %   NoisePanelRCN is a helper function for stimulus definitions like
 %   stimdefRCN.

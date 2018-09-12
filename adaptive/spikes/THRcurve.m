@@ -63,8 +63,6 @@ pause(10);
 if isequal(Proc,'Geisler'), SpikeCrit = dum; end;
 if SpikeCrit == 0, SpikeCrit = 1; end
 SRStr = ['SR = ' num2str(round(SR,2)) ' spikes/s'];
-SR
-round(SR,2)
 THRStr = '';
 % Create plot
 Thr = nan(size(Freq));
