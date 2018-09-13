@@ -19,7 +19,7 @@ Dur = sameextent(Dur,SPLsweep,'X'); % adjust width
 % ---Pres
 Pres = PresentationPanel;
 % Noise
-Noise = NoisePanelRCN('noise param', EXP);
+Noise = NoisePanel('Noise', EXP,'',{'Reverse','SPL'}); % exclude reverse, SPL option in noise panel
 % ---Summary
 summ = Summary(18);
 
@@ -30,8 +30,8 @@ Params = add(Params, summ);
 Params = add(Params, SPLsweep, nextto(summ), [10 0]);
 Params = add(Params, Noise, nextto(SPLsweep), [10 0]);
 Params = add(Params, Dur, below(SPLsweep) ,[0 10]);
-Params = add(Params, Pres, below(Noise) ,[0 5]);
-Params = add(Params, PlayTime(), below(Dur) , [0 5]);
+Params = add(Params, Pres, nextto(Dur) ,[10 0]);
+Params = add(Params, PlayTime(), below(Dur) , [0 50]);
 
 
 
