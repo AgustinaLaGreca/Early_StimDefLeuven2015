@@ -1,4 +1,5 @@
 function NP=NoisePanelRCN(T, EXP, Prefix);
+% ----- NOT USED, RCN uses general panel ---------------
 % NoisePanelRCN - generic noise panel for stimulus GUIs.
 %   NP=NoisePanelRCN(Title, EXP) returns a GUIpanel NP allowing the 
 %   user to specify a white noise band. Guipanel NP has title Title. EXP is the 
