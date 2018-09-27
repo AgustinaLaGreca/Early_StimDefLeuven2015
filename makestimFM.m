@@ -48,7 +48,7 @@ P = chirpStim(P); % P contains both Experiment (calib etc) & params, including P
 P = sortConditions(P, 'Fcar', 'Carrier frequency', 'Hz', P.SweepMode);
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, P.Fcar);
 if ~okay, return; end
 
