@@ -35,6 +35,7 @@ figh = P.handle.GUIfig;
 if ~isequal('Both', P.Experiment.AudioChannelsUsed) || ~isequal(P.DAC,'Both')
     Mess = {'Both channels are required for this stimulus.'};
     GUImessage(figh,Mess,'error');
+    return;
 end
 
 % ITDSpeed: add it to stimparam struct P
@@ -83,7 +84,7 @@ P = sortConditions(P, {'NoiseSeed' 'ITDSpeed'}, {'Noise seed' 'Interaural speed'
     {'' 'us/s'}, {'Linear' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

@@ -1,5 +1,5 @@
 function Params = stimdefSCHR(EXP);
-% stimdefHARHAR - definition of stimulus and GUI for HARHAR stimulus paradigm
+% stimdefSCHR - definition of stimulus and GUI for HARHAR stimulus paradigm
 %    P=stimdefSCHR(EXP) returns the definition for the SCHR
 %    stimulus paradigm (Cedolin & Delgutte 2010). The definition P is a GUIpiece that can be rendered
 %    by GUIpiece/draw. Stimulus definition like stimmdefARMIN are usually

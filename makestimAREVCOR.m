@@ -71,7 +71,7 @@ P = sortConditions(P, {'NoiseSeed' 'PrecursorFlag'}, {'Noise seed' 'PrecursorFla
     {'' ''}, {'Linear' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

@@ -1,8 +1,8 @@
 function Params = stimdefHAR(EXP);
-% stimdefARMIN - definition of stimulus and GUI for ARMIN stimulus paradigm
-%    P=stimdefARMIN(EXP) returns the definition for the ARMIN
+% stimdefHAR - definition of stimulus and GUI for HAR stimulus paradigm
+%    P=stimdefHAR(EXP) returns the definition for the HAR
 %    stimulus paradigm. The definition P is a GUIpiece that can be rendered
-%    by GUIpiece/draw. Stimulus definition like stimmdefARMIN are usually
+%    by GUIpiece/draw. Stimulus definition like stimmdefHAR are usually
 %    called by StimGUI, which combines the parameter panels with
 %    a generic part of stimulus GUIs. The input argument EXP contains 
 %    Experiment definition, which co-determines the realization of

@@ -12,7 +12,7 @@ notchW=EvalnotchW_stepper(figh, '', P);
 if isempty(notchW), return; end
 
 speed=Evalspeed_stepper(figh, '', P);
-speed = speed(find(abs(speed)>=P. minspeed));
+speed = speed(abs(speed)>=P.minspeed);
 
 % SPL
 % SPL=evalSPLstepper(figh, '', P); 
@@ -27,6 +27,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartW' 'StepW' 'EndW' 'StartSPL' 'StepSPL' 'EndSPL' });
+    return;
 end
 
 
@@ -45,7 +46,7 @@ P = sortConditions(P, {'speed' 'notchW'}, {'Notch speed' 'notchW'}, ...
     {'Hz/s' 'dB SPL'}, {'Linear' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

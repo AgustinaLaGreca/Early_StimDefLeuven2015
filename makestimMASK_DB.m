@@ -31,6 +31,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartdB_masker' 'StepdB_masker' 'EnddB_masker' 'StartSPL' 'StepSPL' 'EndSPL' });
+    return;
 end
 
 % Process visiting order of stimulus conditions
@@ -45,7 +46,7 @@ P = sortConditions(P, {'dB_masker' 'SPL'}, {'dB_masker' 'Components Intensity'},
     {'dB SPL' 'dB SPL'}, {P.StepdB_maskerUnit 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

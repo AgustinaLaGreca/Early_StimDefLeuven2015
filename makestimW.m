@@ -1,4 +1,4 @@
-function P2=makestimENH_w(P);
+function P2=makestimW(P);
 
 
 P2 = []; % a premature return will result in []
@@ -25,6 +25,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartW' 'StepW' 'EndW' 'StartSPL' 'StepSPL' 'EndSPL' });
+    return;
 end
 
 % Process visiting order of stimulus conditions

@@ -35,6 +35,7 @@ figh = P.handle.GUIfig;
 if ~isequal('Both', P.Experiment.AudioChannelsUsed) || ~isequal(P.DAC,'Both')
     Mess = {'Both channels are required for this stimulus.'};
     GUImessage(figh,Mess,'error');
+    return;
 end
 
 % Check noise parameters (SPL cannot be checked yet)
@@ -46,7 +47,7 @@ P.Fc = EvalFrequencyStepper(figh, '', P);
 if isempty(P.Fc), return; end
 Ncond = size(P.Fc,1); % # conditions
 if P.StartFreq < P.LowFreq
-    Mess = {['Fstart must be larger then the lowest Noise frequency!']};
+    Mess = {'Fstart must be larger then the lowest Noise frequency!'};
     GUImessage(figh, Mess, 'error', {'StartFreq'});
     return;
 end
@@ -76,6 +77,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartSPL' 'StepSPL' 'EndSPL' 'StartPhase' 'StepPhase' 'EndPhase'});
+    return;
 end
 
 
@@ -96,7 +98,7 @@ P = noiseStimH(P);
 P = sortConditions(P, {'Fc','SPL'}, {'Band Frequency','Intensity'}, {'Hz','dB SPL'}, {P.StepFreqUnit, 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

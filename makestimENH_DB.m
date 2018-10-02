@@ -1,4 +1,4 @@
-function P2=makestimENH_dB(P);
+function P2=makestimENH_DB(P);
 
 
 P2 = []; % a premature return will result in []
@@ -24,6 +24,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartW' 'StepW' 'EndW' 'StartSPL' 'StepSPL' 'EndSPL' });
+    return;
 end
 
 % Process visiting order of stimulus conditions
@@ -40,7 +41,7 @@ P = sortConditions(P, {'notchW' 'dBdiff'}, {'Notch width' 'Components Intensity'
     {'Hz' 'dB SPL'}, {'' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 
 mxSPL
 P.Attenuation.AnaAtten

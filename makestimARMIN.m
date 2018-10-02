@@ -65,6 +65,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartFreq' 'StepFreq' 'EndFreq' 'StartSPL' 'StepSPL' 'EndSPL' });
+    return;
 end
 
 % Process visiting order of stimulus conditions
@@ -83,13 +84,13 @@ P.ReducedStorage = {'',''};
 Chan = 'LR';
 CorrChan = ipsicontra2LR(P.CorrChan, P.Experiment);
 P.ReducedStorage{Chan~=CorrChan} = 'nonzero';
-P.RX6_circuit = ['RX6seqplay-trig-2ADC'];
+P.RX6_circuit = 'RX6seqplay-trig-2ADC';
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, {'FlipFreq','SPL'}, {'Flip frequency','Intensity'}, {'Hz','dB SPL'}, {P.StepFreqUnit, 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

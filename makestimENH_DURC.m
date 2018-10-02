@@ -1,4 +1,4 @@
-function P2=makestimENH_condBurstDur(P);
+function P2=makestimENH_DURC(P);
 
 
 P2 = []; % a premature return will result in []
@@ -7,9 +7,8 @@ figh = P.handle.GUIfig;
 
 
 % notch width
-% notch width
 notchW=EvalnotchW_stepper(figh, '', P); 
-notchW(find(notchW==0))=100; %because zero doesnt have a sign
+notchW(notchW==0)=100; %because zero doesnt have a sign
 % notchW= [-1;notchW];
 notchW= [-notchW(:)';notchW']; %negative is without conditioner
 notchW= notchW(:);
@@ -31,6 +30,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartW' 'StepW' 'EndW' 'StartcondBurstDur' 'StepcondBurstDur' 'EndcondBurstDur' });
+    return;
 end
 
 % Process visiting order of stimulus conditions
@@ -48,7 +48,7 @@ P = sortConditions(P, {'notchW' 'condBurstDur'}, {'Notch width' 'condBurstDur'},
     {'Hz' 'ms'}, {P.StepWUnit 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 

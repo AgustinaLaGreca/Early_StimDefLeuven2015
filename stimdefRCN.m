@@ -19,7 +19,7 @@ Dur = sameextent(Dur,SPLsweep,'X'); % adjust width
 % ---Pres
 Pres = PresentationPanel;
 % Noise
-Noise = NoisePanel('Noise', EXP,'',{'Reverse','SPL','DAC'}); % exclude reverse, SPL, DAC option in noise panel
+Noise = NoisePanel('Noise', EXP,'',{'Reverse','SPL','DAC'}); % exclude reverse, SPL, DAC option in noise panel. Marta 09/18
 % ---Summary
 summ = Summary(18);
 

@@ -42,6 +42,7 @@ if invalid
     Mess = {['Specified lowest harmonic number ' num2str(P.HarLow) ' of fundamental frequencies ' num2str(P.Fcar(invalid)') 'Hz' ' is greater than specified highest frequency limit ' num2str(P.FreqHigh) 'Hz.'],...
         'Increase highest frequency limit or decrease lowest harmonic number or change range of studied fundamental frequencies '};
     GUImessage(figh, Mess, 'error', {'HarLow' 'FreqHigh' 'StartFreq' 'StepFreq' 'EndFreq'});
+    return;
 end
 end
 if isempty(P.Fcar), return; end
@@ -68,6 +69,7 @@ if prod(P.Ncond_XY)>maxNcond,
     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
         'Increase stepsize(s) or decrease range(s)'};
     GUImessage(figh, Mess, 'error', {'StartFreq' 'StepFreq' 'EndFreq' 'StartC' 'StepC' 'EndC' });
+    return;
 end
 
 % Process visiting order of stimulus conditions
@@ -88,7 +90,7 @@ P = sortConditions(P, {'Fcar' 'C'}, {'Carrier frequency' 'Carrier Intensity'}, .
     {'Hz' 'rad'}, {'Hz' 'Linear'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay = CheckSPL(figh, P.SPL, mxSPL, P.Fcar, '', {'StartSPL' 'EndSPL'});
 if ~okay, return; end
 
