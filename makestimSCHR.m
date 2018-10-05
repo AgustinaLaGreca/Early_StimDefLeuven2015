@@ -1,16 +1,16 @@
 function P2=makestimSCHR(P);
-% MakestimARMIN - stimulus generator for ARMIN stimGUI
-%    P=MakestimARMIN(P), where P is returned by GUIval, generates the stimulus
-%    specified in P. MakestimARMIN is typically called by StimGuiAction when
+% MakestimSCHR - stimulus generator for SCHR stimGUI
+%    P=MakestimSCHR(P), where P is returned by GUIval, generates the stimulus
+%    specified in P. MakestimSCHR is typically called by StimGuiAction when
 %    the user pushes the Check, Play or PlayRec button.
-%    MakestimARMIN does the following:
+%    MakestimSCHR does the following:
 %        * Complete check of the stimulus parameters and their mutual
 %          consistency, while reporting any errors
 %        * Compute the stimulus waveforms
 %        * Computation and broadcasting info about # conditions, total
 %          stimulus duration, Max SPL, etc.
 %
-%    MakestimARMIN renders P ready for D/A conversion by adding the following 
+%    MakestimSCHR renders P ready for D/A conversion by adding the following 
 %    fields to P
 %            Fsam: sample rate [Hz] of all waveforms. This value is
 %                  determined by carrier & modulation freqs, but also by
@@ -91,7 +91,9 @@ P = sortConditions(P, {'Fcar' 'C'}, {'Carrier frequency' 'Carrier Intensity'}, .
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
-okay = CheckSPL(figh, P.SPL, mxSPL, P.Fcar, '', {'StartSPL' 'EndSPL'});
+
+%okay = CheckSPL(figh, P.SPL, mxSPL, P.Fcar, '', {'StartSPL' 'EndSPL'});
+okay=EvalSPLpanel(figh, P, mxSPL, P.Fcar);
 if ~okay, return; end
 
 % Summary
