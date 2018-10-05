@@ -121,9 +121,15 @@ for ifreq=ifreqs,
     [MaxSPL, Atten] = maxSPL(W, EXP);
     SPL = P.SPLs;
     SPL = SPL(SPL < MaxSPL(ifreq));
-    LinAmp = P.LinAmp(1:length(SPL),:);
-    Attenuation = P.Attenuations(1:length(SPL),:);
+%    LinAmp = P.LinAmp(1:length(SPL),:);    
+%    Attenuation = P.Attenuations(1:length(SPL),:);
     Thr_lim(ifreq) = SPL(end); % added by Jan (April 2018) to plot the limit
+
+    % LinAmp and Attenuation, according to the original code, 
+    % seem to be frequency-dependent, Hsin-Wei 02.Oct.2018
+    LinAmp = P.LinAmp(ic(1:length(SPL)),:);   % Hsin-Wei 02.Oct.2018
+    Attenuation = P.Attenuations(ic(1:length(SPL)),:);    % Hsin-Wei 02.Oct.2018
+
     
 %     % Original (before Jan 2018)
 %     SPL = P.SPLs;
