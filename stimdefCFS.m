@@ -13,6 +13,8 @@ function Params = stimdefCFS(EXP);
 
 PairStr = ' Pairs of numbers are interpreted as [left right].';
 ClickStr = ' Click button to select ';
+%==========Amplitude Generation panel===============
+AmpRef = ClickAmpRefPanel('Amplitude value definition');
 %==========Carrier frequency GUIpanel=====================
 Fsweep = FrequencyStepper('click frequency', EXP);
 % ---Clicks
@@ -36,6 +38,7 @@ Params = add(Params, Levels, nextto(Fsweep), [10 0]);
 Params = add(Params, Dur, below(Levels) ,[0 10]);
 Params = add(Params, Pres, nextto(Dur) ,[5 0]);
 Params = add(Params, PlayTime, below(Clicks) , [0 7]);
+Params = add(Params, AmpRef, below(PlayTime), [0 10]);
 
 
 

@@ -115,7 +115,7 @@ for ichan=1:Nchan,
         % compute the waveform
         [w, fcar, fmod] = local_Waveform(chanStr, P.Experiment, Fsam, ISI(idx), ...
             FineDelay(idx), GateDelay(idx), OnsetDelay(idx), RiseDur(idx), FallDur(idx), ...
-            C, WavePhase(idx), PulseWidth(idx), PulseType(idx), SPL(idx));
+            C, WavePhase(idx), PulseWidth(idx), PulseType(idx), SPL(idx), P.AmpRef);
         P.Waveform(icond,ichan) = w;
         % derived stim params
         P.Fcar(icond,ichan) = fcar;
@@ -132,7 +132,7 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 %===================================================
 function  [W, Fcar, Fmod] = local_Waveform(DAchan, EXP, Fsam, ISI, ...
     FineDelay, GateDelay, OnsetDelay, RiseDur, FallDur, ...
-    C, WavePhase, PulseWidth, PulseType, SPL);
+    C, WavePhase, PulseWidth, PulseType, SPL, AmpRef);
 % Generate the waveform from the elementary parameters
 %=======TIMING, DURATIONS & SAMPLE COUNTS=======
 BurstDur = C.Dur;
@@ -230,14 +230,12 @@ ScaleFactor = 1/max(abs(CycBuf));
 
 % waveform is generated @ the target SPL. Scaling is divided
 % between numerical scaling and analog attenuation later on.
-if strcmp(P.AmpRef, 'SPL')
+if strcmp(AmpRef, 'SPL')
     SPLtheor = SPLtheor + P2dB(SFreq*PbufWidth*1e-3); % compensate for the fact that true rate ~= 1/MaxWidth
-    Amp = dB2A(SPL)*sqrt(2)/dB2A(SPLtheor); % numerical linear amplitudes of the carrier ...
 else
-    SPLtheor = SPLtheor + P2dB(100*PbufWidth*1e-3); % use refrence 100 Hz value
-    Amp = dB2A(SPLtheor)*sqrt(2); % sqrt(2) ?
-end
-
+    SPLtheor = SPLtheor + P2dB(100*PbufWidth*1e-3); % use reference 100 Hz value
+end 
+Amp = dB2A(SPL)*sqrt(2)/dB2A(SPLtheor); % numerical linear amplitudes of the carrier ...
 CycBuf = Amp(1) * CycBuf * ScaleFactor;
 
 
