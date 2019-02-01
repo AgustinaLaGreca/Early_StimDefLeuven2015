@@ -192,7 +192,7 @@ end
 
 SPLtheor = 6+P2dB(mean(real(ifft(pulseSpec./calibrator)).^2)); % calibration-weighted sum of all components of click
 SPLtheor = SPLtheor + P2dB(NsamF/NsamT); % compensate for truncation in time domain
-SPLtheor = SPLtheor + P2dB(SFreq*PbufWidth*1e-3); % compensate for the fact that true rate ~= 1/MaxWidth
+
 pulseBuf = pulseBuf(1:NsamT);
 
 dt = 1e3/Fsam; % sample period in ms
@@ -230,7 +230,14 @@ ScaleFactor = 1/max(abs(CycBuf));
 
 % waveform is generated @ the target SPL. Scaling is divided
 % between numerical scaling and analog attenuation later on.
-Amp = dB2A(SPL)*sqrt(2)/dB2A(SPLtheor); % numerical linear amplitudes of the carrier ...
+if strcmp(P.AmpRef, 'SPL')
+    SPLtheor = SPLtheor + P2dB(SFreq*PbufWidth*1e-3); % compensate for the fact that true rate ~= 1/MaxWidth
+    Amp = dB2A(SPL)*sqrt(2)/dB2A(SPLtheor); % numerical linear amplitudes of the carrier ...
+else
+    SPLtheor = SPLtheor + P2dB(100*PbufWidth*1e-3); % use refrence 100 Hz value
+    Amp = dB2A(SPLtheor)*sqrt(2); % sqrt(2) ?
+end
+
 CycBuf = Amp(1) * CycBuf * ScaleFactor;
 
 
