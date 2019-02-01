@@ -3,7 +3,7 @@ function [ P ] = EvalHARHAR( P , figh)
 
 if strcmpi(P.PhaseType,'schroeder') && (P.Cphase<-1 || P.Cphase>1)
     GUImessage(figh, 'C must be larger then -1 and smaller then 1', 'error', {'Cphase'});
-    error('C must be larger then -1 and smaller then 1');
+    error('C must be larger then -1 and smaller than 1');
 end
 
 if strcmpi(P.PhaseType,'random') && isnan(P.PhaseSeed)

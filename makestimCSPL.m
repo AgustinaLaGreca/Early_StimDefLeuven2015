@@ -1,4 +1,4 @@
-function P2=makestimCSPL(P);
+function P2=makestimCSPL(P)
 % MakestimCSPL - stimulus generator for CSPL stimGUI
 %    P=MakestimCSPL(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimCSPL is typically called by StimGuiAction when

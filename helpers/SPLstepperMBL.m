@@ -33,22 +33,14 @@ function Levels=SPLstepperMBL(T, EXP, Prefix, CmpName);
 %   See StimGUI, GUIpanel, ReportMaxSPL, stimdefFS, SPLstepperMBL.
 
 
-[Prefix, CmpName] = arginDefaults('Prefix/CmpName', '', 'Carrier');
+[Prefix, ~] = arginDefaults('Prefix/CmpName', '', 'Carrier');
 if isequal('-',T), T = 'SPLs & active channels'; end
 
 PairStr = '';
 Nchan = 1;
 
 ClickStr = ' Click button to select ';
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
+[DACstr, Lstr, Rstr] = getDACstr(EXP.AudioChannelsUsed, EXP.Recordingside);
 
 %&&&&&&&&
 MBLSPL = ParamQuery([Prefix 'MBLSPL'], 'MBL:', '-10.5 -10.5', 'dB SPL', ...

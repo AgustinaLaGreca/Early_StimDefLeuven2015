@@ -33,10 +33,8 @@ Nchan = 1;
 PairStr = ''; 
 ClickStr = ' Click button to select ';
 
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
+[Lstr, Rstr] = getRecordingSideStr(EXP.Recordingside);
+% Both channels are required for this stimulus, see makestimHP
 DACstr = {Lstr Rstr};
 
 %==========frequency GUIpanel=====================
