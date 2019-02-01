@@ -1,4 +1,4 @@
-function Levels=SPLstepperILD(T, EXP, Prefix, CmpName);
+ function Levels=SPLstepperILD(T, EXP, Prefix, CmpName);
 % SPLstepperILD - generic panel for stepped SPL and DAchannel in stimulus GUIs.
 %   S=SPLstepperILD(Title, EXP) returns a GUIpanel M named 'Levels' allowing the 
 %   user to specify a stepped SPL to be applied to the stimuli of a series.
@@ -30,22 +30,14 @@ function Levels=SPLstepperILD(T, EXP, Prefix, CmpName);
 %   See StimGUI, GUIpanel, ReportMaxSPL, stimdefFS, SPLstepperILD.
 
 
-[Prefix, CmpName] = arginDefaults('Prefix/CmpName', '', 'Carrier');
+[Prefix, ~] = arginDefaults('Prefix/CmpName', '', 'Carrier');
 if isequal('-',T), T = 'SPLs & active channels'; end
 
 PairStr = '';
 Nchan = 1;
 
 ClickStr = ' Click button to select ';
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
+[DACstr, Lstr, Rstr] = getDACstr(EXP.AudioChannelsUsed, EXP.Recordingside);
 
 %&&&&&&&&
 ConstantSPL = ParamQuery([Prefix 'ConstantSPL'], 'constant ear:', '-10.5 -10.5', 'dB SPL', ...

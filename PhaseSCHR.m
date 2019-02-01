@@ -9,7 +9,7 @@ function PhasePanel=PhaseSCHR(T, EXP);
 %   See StimGUI, GUIpanel, makestimHARHAR.
 
 
-[Prefix, Flag, Flag2] = arginDefaults('Prefix/Flag/Flag2', '');
+[Prefix, Flag, ~] = arginDefaults('Prefix/Flag/Flag2', '');
 
 
 % JV: be able to turn Nchan = 2 off, even when EXP.AudioChannelsUsed is 2
@@ -19,24 +19,10 @@ if (nargin < 5), Flag = ''; end
 if ~isequal(Flag,'nobinaural') && isequal('Both', EXP.AudioChannelsUsed), 
     Nchan = 2;
     PairStr = ' Pairs of numbers are interpreted as [left right].';
-else, % single Audio channel
+else % single Audio channel
     Nchan = 1;
     PairStr = ''; 
 end
-ClickStr = ' Click button to select ';
-
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
-
-%&&&&&&&&
-
 
 
 %==========Phase GUIpanel=====================
@@ -57,6 +43,6 @@ PhasePanel = add(PhasePanel, StartC);
 PhasePanel = add(PhasePanel, StepC, below(StartC));
 PhasePanel = add(PhasePanel, EndC, below(StepC));
 PhasePanel = add(PhasePanel, AdjustC, nextto(StepC), [10 0]);
-if ~isequal('notol', Flag),
+if ~isequal('notol', Flag)
     PhasePanel = add(PhasePanel, Tol, alignedwith(AdjustC) , [0 -10]);
 end

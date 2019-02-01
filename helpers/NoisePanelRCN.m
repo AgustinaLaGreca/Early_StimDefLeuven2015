@@ -37,17 +37,6 @@ else, % single Audio channel
     Nchan = 1;
     PairStr = ''; 
 end
-Levels = GUIpanel('Levels', T);
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
-ClickStr = ' Click button to select ';
 
 %===========Queries========
 % ---freq & seed

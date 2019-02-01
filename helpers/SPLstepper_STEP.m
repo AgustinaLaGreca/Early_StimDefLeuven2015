@@ -1,4 +1,4 @@
-function Levels=SPLstepper(T, EXP, Prefix, CmpName,Flag, Tooltip);
+function Levels=SPLstepper_STEP(T, EXP, Prefix, CmpName,Flag, Tooltip);
 % SPLstepper - generic panel for stepped SPL and DAchannel in stimulus GUIs.
 %   S=SPLstepper(Title, EXP) returns a GUIpanel M named 'Levels' allowing the 
 %   user to specify a stepped SPL to be applied to the stimuli of a series.
@@ -28,30 +28,22 @@ function Levels=SPLstepper(T, EXP, Prefix, CmpName,Flag, Tooltip);
 %   See StimGUI, GUIpanel, ReportMaxSPL, stimdefFS, SPLstepper.
 
 
-[Prefix, CmpName,Tooltip] = arginDefaults('Prefix/CmpName/Tooltip', '', 'Carrier','');
+[Prefix, ~, Tooltip] = arginDefaults('Prefix/CmpName/Tooltip', '', 'Carrier','');
 if isequal('-',T), T = 'SPLs & active channels'; end
 
 % JV: be able to turn Nchan = 2 off, even when EXP.AudioChannelsUsed is 2
 if (nargin < 5), Flag = ''; end
 
 % # DAC channels determines the allowed multiplicity of user-specied numbers
-if ~isequal(Flag,'nobinaural') && isequal('Both', EXP.AudioChannelsUsed), 
+if ~isequal(Flag,'nobinaural') && isequal('Both', EXP.AudioChannelsUsed)
     Nchan = 2;
     PairStr = ' Pairs of numbers are interpreted as [left right].';
-else, % single Audio channel
+else % single Audio channel
     Nchan = 1;
     PairStr = ''; 
 end
 ClickStr = ' Click button to select ';
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
+DACstr = getDACstr(EXP.AudioChannelsUsed, EXP.Recordingside);
 
 %&&&&&&&&
 StartSPL = ParamQuery([Prefix 'StartSPL'], 'start:', '-10.5 -10.5', 'dB SPL', ...

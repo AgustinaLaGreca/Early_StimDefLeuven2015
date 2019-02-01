@@ -33,24 +33,15 @@ function Fsweep=FrequencyStepperHARHAR(T, EXP, Prefix, Flag, Flag2);
 [Prefix, Flag, Flag2] = arginDefaults('Prefix/Flag/Flag2', '');
 
 % # DAC channels and Flag2 determines the allowed multiplicity of user-specied numbers
-if isequal('Both', EXP.AudioChannelsUsed) && ~isequal('nobinaural', Flag2), 
+if isequal('Both', EXP.AudioChannelsUsed) && ~isequal('nobinaural', Flag2) 
     Nchan = 2;
     PairStr = ' Pairs of numbers are interpreted as [left right].';
-else, % single Audio channel
+else % single Audio channel
     Nchan = 1;
     PairStr = ''; 
 end
 ClickStr = ' Click button to select ';
 
-switch EXP.Recordingside,
-    case 'Left', Lstr = 'Left=Ipsi'; Rstr = 'Right=Contra';
-    case 'Right', Lstr = 'Left=Contra'; Rstr = 'Right=Ipsi';
-end
-switch EXP.AudioChannelsUsed,
-    case 'Left', DACstr = {Lstr};
-    case 'Right', DACstr = {Rstr};
-    case 'Both', DACstr = {Lstr Rstr 'Both'};
-end
 
 %==========frequency GUIpanel=====================
 Fsweep = GUIpanel('Fsweep', T);
@@ -61,7 +52,7 @@ StepNHN = ParamQuery([Prefix 'StepNHN'], 'CF/F0 step:', '12000', '', ...
 EndNHN = ParamQuery([Prefix 'EndNHN'], 'CF/F0 end:', '12000.1 12000.1', '', ...
     'rreal/positive', ['Last neural harmonic number (= CF / F0) of series.' PairStr], Nchan);
 AdjustFreq = ParamQuery([Prefix 'AdjustFreq'], 'adjust:', '', {'none' 'start' 'step' 'end'}, ...
-    '', ['Choose which parameter to adjust when the stepsize does not exactly fit the start & end values.'], 1,'Fontsiz', 8);
+    '', 'Choose which parameter to adjust when the stepsize does not exactly fit the start & end values.', 1,'Fontsiz', 8);
 Tol = ParamQuery([Prefix 'FreqTolMode'], 'acuity:', '', {'economic' 'exact'}, '', [ ...
     'Exact: no rounding applied;', char(10), 'Economic: allow slight (<1 part per 1000), memory-saving rounding of frequencies;'], ...
     1, 'Fontsiz', 8);
@@ -80,7 +71,7 @@ Fsweep = add(Fsweep, HarLowest, below(EndNHN), [0 2]);
 Fsweep = add(Fsweep, HarHighest, below(HarLowest), [0 2]);
 Fsweep = add(Fsweep, CF, below(HarHighest), [10 0]);
 
-if ~isequal('notol', Flag),
+if ~isequal('notol', Flag)
     Fsweep = add(Fsweep, Tol, alignedwith(AdjustFreq) , [0 -10]);
 end
 

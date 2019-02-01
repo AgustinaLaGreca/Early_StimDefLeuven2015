@@ -77,8 +77,12 @@ if ~okay, return; end
 P = EvalHARHAR(P,figh);
 
 % Determine sample rate and actually generate the calibrated waveforms
-P = HARHARStim(P); % P contains both Experiment (calib etc) & params, including P.Fcar 
-
+try
+    P = HARHARStim(P); % P contains both Experiment (calib etc) & params, including P.Fcar
+catch ME
+    GUImessage(figh, ME.message,'error');
+    rethrow(ME)
+end
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, {'Fcar' 'SPL'}, {'Carrier frequency' 'Carrier Intensity'}, ...
     {'Hz' 'dB SPL'}, {'Hz' 'Linear'});
