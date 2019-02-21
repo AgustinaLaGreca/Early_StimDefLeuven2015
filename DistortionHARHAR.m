@@ -5,7 +5,7 @@ function Distortion=DistortionHARHAR(T, EXP);
 %   EXP is the experiment definition, from which the number of DAC channels 
 %   used (1 or 2) is determined.
 %
-%   See StimGUI, GUIpanel, makestimHARHAR.
+%   See StimGUI, GUIpanel, makestimHARHAR, EvalHARHAR.
 
 
 %==========frequency GUIpanel=====================
@@ -17,9 +17,10 @@ SPL = ParamQuery('DistortionSPL', 'Distortion SPL:', '50', ...
     'dB SPL','rreal', 'The Intensity of the distortion tone.');
 Fmod = ParamQuery('DistortionFmod', 'Fmod:', '200', ...
     'Hz','rreal', 'The frequency at which the distortion tone is modulated. Zero Hz indicates no Modulation');
+AddDistortion = ParamQuery('AddDistortion', 'Add Distortion?', '', {'Yes' 'No'}, ...
+    '', '');
 
-
-
+Distortion = add(Distortion, AddDistortion);
 Distortion = add(Distortion, DeltaF0);
 Distortion = add(Distortion, SPL, below(DeltaF0));
 Distortion = add(Distortion, Fmod, below(SPL));

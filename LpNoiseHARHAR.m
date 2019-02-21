@@ -5,7 +5,7 @@ function Noise=LpNoiseHARHAR(T, EXP);
 %   The Guipanel F has title Title. EXP is the experiment 
 %   definition, from which the number of DAC channels used (1 or 2) is
 %   determined.
-%   See StimGUI, GUIpanel, makestimHARHAR.
+%   See StimGUI, GUIpanel, makestimHARHAR, EvalHARHAR.
 
 
 %==========LP Noise GUIpanel=====================
