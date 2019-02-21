@@ -22,6 +22,9 @@ Dur = DurPanelClicks('Durations', EXP, '', 'basicsonly');
 Pres = PresentationPanel;
 % ---Level
 Level = SPLpanel('-', EXP);
+%==========Amplitude Generation panel===============
+AmpRef = ClickAmpRefPanel('Amplitude value definition');
+AmpRef = sameextent(AmpRef,Level,'X'); % Makes the panel equal to Level in width
 % ---Carrier frequency
 Frequency = FreqPanel('click frequency', EXP);
 Clicks = sameextent(Clicks,Frequency,'X'); % adjust width
@@ -36,7 +39,8 @@ Params = add(Params, ITD, nextto(summ), [10 0]);
 Params = add(Params, Frequency, below(ITD), [0 10]);
 Params = add(Params, Clicks, below(Frequency), [0 4]);
 Params = add(Params, Level, nextto(ITD), [10 0]);
-Params = add(Params, Dur, below(Level) ,[0 10]);
+Params = add(Params, AmpRef, below(Level), [0 10]);
+Params = add(Params, Dur, below(AmpRef) ,[0 10]);
 Params = add(Params, Pres, nextto(Dur) ,[10 0]);
 Params = add(Params, PlayTime(), below(Clicks) , [0 10]);
 
