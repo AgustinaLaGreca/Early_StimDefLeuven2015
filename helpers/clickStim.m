@@ -20,6 +20,8 @@ function P = clickStim(P, varargin);
 %         ModITD: ITD imposed on modulation in ms
 %            DAC: left|right|both active DAC channel(s)
 %            SPL: carrier sound pressure level [dB SPL]
+%         AmpRef: Which Amplitude reference is used, SPL value or 100Hz ref
+%        
 %
 %   Most of these parameters may be a scalar or a [1 2] array, or
 %   a [Ncond x 1] or [Ncond x 2] or array, where Ncond is the number of

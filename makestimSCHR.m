@@ -23,6 +23,8 @@ function P2=makestimSCHR(P);
 %     Attenuation: scaling factors and analog attuater settings for D/A
 %    Presentation: struct containing detailed info on stimulus order,
 %                  broadcasting of D/A progress, etc.
+%             RMS: array containing the rms value of Waveforms, excluding
+%                  the silence between repetitions/conditions.
 % 
 %   See also noiseStim, Waveform/maxSPL, Waveform/play, sortConditions
 
@@ -88,6 +90,9 @@ P = SCHRStim(P); % P contains both Experiment (calib etc) & params, including P.
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, {'Fcar' 'C'}, {'Carrier frequency' 'Carrier Intensity'}, ...
     {'Hz' 'rad'}, {'Hz' 'Linear'});
+% Compute RMS values
+%P.RMS = getWaveformsRMS(P.Waveform);
+%P.RMSav = mean(P.RMS,1,'omitnan');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
