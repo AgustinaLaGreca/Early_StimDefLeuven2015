@@ -11,8 +11,6 @@ function Params = stimdefCFS(EXP);
 %
 %    See also stimGUI, stimDefDir, Experiment, makestimCFS, stimparamsCFS.
 
-PairStr = ' Pairs of numbers are interpreted as [left right].';
-ClickStr = ' Click button to select ';
 %==========Carrier frequency GUIpanel=====================
 Fsweep = FrequencyStepper('click frequency', EXP);
 % ---Clicks
@@ -20,10 +18,14 @@ Clicks = ClickPanel('click parameters', EXP);
 Clicks = sameextent(Clicks,Fsweep,'X'); % adjust width of Mod to match Freq
 % ---Levels
 Levels = SPLpanel('-', EXP);
-% ---Durations
-Dur = DurPanelClicks('-', EXP);
+%==========Amplitude Generation panel===============
+AmpRef = ClickAmpRefPanel('Amplitude value definition');
+AmpRef = sameextent(AmpRef,Levels,'X');
 % ---Pres
 Pres = PresentationPanel;
+% ---Durations
+Dur = DurPanelClicks('-', EXP);
+Dur = sameextent(Dur,Pres,'Y');
 % ---Summary
 summ = Summary(17);
 
@@ -33,9 +35,11 @@ Params = add(Params, summ);
 Params = add(Params, Fsweep, nextto(summ), [10 0]);
 Params = add(Params, Clicks, below(Fsweep) ,[0 10]);
 Params = add(Params, Levels, nextto(Fsweep), [10 0]);
-Params = add(Params, Dur, below(Levels) ,[0 10]);
+Params = add(Params, AmpRef, below(Levels), [0 10]);
+Params = add(Params, Dur, below(AmpRef) ,[0 10]);
 Params = add(Params, Pres, nextto(Dur) ,[5 0]);
-Params = add(Params, PlayTime, below(Clicks) , [0 7]);
+Params = add(Params, PlayTime, below(Dur) , [0 7]);
+
 
 
 

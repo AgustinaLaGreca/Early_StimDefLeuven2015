@@ -16,18 +16,18 @@ if strcmpi(P.AddNoise,'yes')
             'error', {'NoiseLowFreq' 'NoiseHighFreq'});
         error('The Low Freq of the noise must be lower then the high Freq of the noise.');
     end
-end
-
-if P.NoiseSPL <= 0
+    if P.NoiseSPL <= 0
      GUImessage(figh, 'The Noise SPL must be larger then zero.', ...
             'error', {'NoiseSPL'});
      error('The Noise SPL must be larger then zero.');   
+    end
 end
 
+if strcmpi(P.AddDistortion,'yes')
 if P.DistortionSPL <= 0
-     GUImessage(figh, 'The Noise SPL must be larger then zero.', ...
+     GUImessage(figh, 'The Distortion SPL must be larger then zero.', ...
             'error', {'DistortionSPL'});
-     error('The Noise SPL must be larger then zero.');   
+     error('The Distortion SPL must be larger then zero.');   
 end
 
 if isnan(P.NoiseSeed)

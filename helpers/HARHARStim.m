@@ -119,8 +119,9 @@ for ichan=1:Nchan,
         w = local_Waveform(chanStr, P.Experiment, Fsam, ISI(idx), ...
             FineDelay(idx), GateDelay(idx), OnsetDelay(idx), BurstDur(idx), RiseDur(idx), FallDur(idx), ...
             Fcar(idx), P.HarLow, P.HarHigh, P.PhaseType, P.Cphase, SPL(idx), ...
-            P.PhaseSeed, P.DistortionFmod, P.DeltaF0, P.DistortionSPL, P.AddNoise, ...
-            P.NoiseLowFreq, P.NoiseHighFreq, P.NoiseSPL, P.NoiseSeed);
+            P.PhaseSeed, P.AddDistortion, P.DistortionFmod, P.DeltaF0, ...
+            P.DistortionSPL, P.AddNoise, P.NoiseLowFreq, P.NoiseHighFreq, ...
+            P.NoiseSPL, P.NoiseSeed);
         P.Waveform(icond,ichan) = w;
     end
 end
@@ -133,8 +134,9 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 %===================================================
 function  [W, Fcar] = local_Waveform(DAchan, EXP, Fsam, ISI, ...
     FineDelay, GateDelay, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    Fcar, LowHarmonic, HighHarmonic, PhaseType, Cphase, SPL,PhaseSeed, DistortionFmod, ...
-    DeltaF0, DistortionSPL, AddNoise, NoiseLowFreq, NoiseHighFreq, NoiseSPL, NoiseSeed);
+    Fcar, LowHarmonic, HighHarmonic, PhaseType, Cphase, SPL,PhaseSeed, ...
+    AddDistortion, DistortionFmod, DeltaF0, DistortionSPL, AddNoise, ...
+    NoiseLowFreq, NoiseHighFreq, NoiseSPL, NoiseSeed);
 % Generate the waveform from the elementary parameters
 %=======TIMING, DURATIONS & SAMPLE COUNTS=======
 % get sample counts of subsequent segments
@@ -180,11 +182,11 @@ dt = 1e3/Fsam; % sample period in ms
 StoreDur = dt*(NgateDelay + Nrise + (NsamCyc + NsamTail) + Nfall); % only a single cycled buf is used
 wtone = tonecomplex(Amp, freq, StartPhase, Fsam, StoreDur); % ungated waveform buffer; starting just after OnsetDelay
 if logical(EXP.StoreComplexWaveforms); % if true, store complex analytic waveforms, real part otherwise
-    wtone = wtone+ i*toneComplex(Amp, freq, StartPhase+0.25, Fsam, StoreDur);
+    wtone = wtone+ 1i*toneComplex(Amp, freq, StartPhase+0.25, Fsam, StoreDur);
 end
 
 % Create the distortion tone
-if ~(DeltaF0 == 0)
+if strcmpi(AddDistortion,'yes') && ~(DeltaF0 == 0)
     dist_freq = Fcar + DeltaF0;
     dist_freq = dist_freq+[-1 0 1]*DistortionFmod; % [Hz] lower sideband, carrier, upper sideband
     
@@ -196,9 +198,11 @@ if ~(DeltaF0 == 0)
     dist_StartPhase = dist_calibDphi - 1e-3*FineDelay.*dist_freq;
 
     dist_wtone = tonecomplex(dist_Amp, dist_freq, dist_StartPhase, Fsam, StoreDur);
-    if logical(EXP.StoreComplexWaveforms); % if true, store complex analytic waveforms, real part otherwise
-        dist_wtone = dist_wtone+ i*toneComplex(dist_Amp, dist_freq, dist_StartPhase+0.25, Fsam, StoreDur);
+    if logical(EXP.StoreComplexWaveforms) % if true, store complex analytic waveforms, real part otherwise
+        dist_wtone = dist_wtone+ 1i*toneComplex(dist_Amp, dist_freq, dist_StartPhase+0.25, Fsam, StoreDur);
     end
+else
+    dist_wtone = zeros(size(wtone));
 end
 
 % Create the Noise
@@ -206,10 +210,12 @@ if strcmpi(AddNoise,'yes')
     NS = NoiseSpec(Fsam, BurstDur, NoiseSeed, [NoiseLowFreq, NoiseHighFreq], NoiseSPL, 'dB SPL');
     % apply calibration, phase shift and ongoing delay while still in freq domain
     n = NS.Buf.*calibrate(EXP, Fsam, DAchan, -NS.Freq, 1); % last one: complex phase factor; neg freqs: don't bother about freqs outside calib range
-    n = n.*exp(2*pi*i*(-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
+    n = n.*exp(2*pi*1i*(-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
     % go to time domain (complex analytical waveforms) and apply modulation, freq shift & gating.
     n = ifft(n);
-    n = n(1:ceil((GateDelay+BurstDur)/dt)-1); % throw away unused buffer tail
+    n = n(1:ceil((GateDelay+BurstDur)/dt)); % throw away unused buffer tail
+    % Marta: correct the trimming (02/19)
+    % n = n(1:ceil((GateDelay+BurstDur)/dt)-1); % throw away unused buffer tail
     % Depending on user preference, store complex analytic waveforms or take real part
     if ~logical(EXP.StoreComplexWaveforms); 
         n = real(n);

@@ -1,4 +1,4 @@
-function P2=makestimNSAM(P);
+function P2=makestimNSAM(P)
 % makestimNSAM - stimulus generator for RCN stimGUI
 %    P=makestimNSAM(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimRCN is typically called by StimGuiAction when
@@ -61,7 +61,7 @@ P = noiseStim(P);
 P = sortConditions(P, 'ModFreq', 'Modulation Frequency', 'Hz', 'lin');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
-[mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
+[mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
 okay = CheckSPL(figh, P.SPL, mxSPL, [], 'MaxSPL', 'SPL');
 if ~okay, return; end
 

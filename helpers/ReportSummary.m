@@ -17,7 +17,7 @@ function ReportSummary(figh, P);
 
 % remove duplicates because of repetitions
 iCond = P.Presentation.iCond;
-[dum I dum] = unique(iCond,'first');
+[~, I, ~] = unique(iCond,'first');
 iCond = iCond(sort(I));
 
 x = P.Presentation.x;

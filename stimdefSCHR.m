@@ -18,7 +18,7 @@ ClickStr = ' Click button to select ';
 Fsweep = FrequencyStepperSCHR('frequencies', EXP, '', '', 'nobinaural');
 
 % ---Levels
-Levels = SPLpanel('-', EXP);
+Levels = SPLpanel('-', EXP,'','Component');
 
 % --- Phase
 Phase = PhaseSCHR('Phase', EXP);

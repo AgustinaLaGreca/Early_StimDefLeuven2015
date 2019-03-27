@@ -116,19 +116,20 @@ for ifreq=ifreqs,
     % Get correct LinAmp and Attenuations
     
     % Changed by Jan (April 2018) - THR limits from calib included
-    W = P.Waveform;
-    EXP = P.Experiment;
+    W               = P.Waveform;
+    EXP             = P.Experiment;
     [MaxSPL, Atten] = maxSPL(W, EXP);
-    SPL = P.SPLs;
-    SPL = SPL(SPL < MaxSPL(ifreq));
-%    LinAmp = P.LinAmp(1:length(SPL),:);    
-%    Attenuation = P.Attenuations(1:length(SPL),:);
-    Thr_lim(ifreq) = SPL(end); % added by Jan (April 2018) to plot the limit
+    SPL             = P.SPLs;
+    iSPL            = SPL < MaxSPL(ifreq);  % eric 26/Mar/2019
+    SPL             = SPL(iSPL);    % eric 26/Mar/2019
 
-    % LinAmp and Attenuation, according to the original code, 
-    % seem to be frequency-dependent, Hsin-Wei 02.Oct.2018
-    LinAmp = P.LinAmp(ic(1:length(SPL)),:);   % Hsin-Wei 02.Oct.2018
-    Attenuation = P.Attenuations(ic(1:length(SPL)),:);    % Hsin-Wei 02.Oct.2018
+%     SPL             = SPL(SPL < MaxSPL(ifreq));    
+
+%     LinAmp = P.LinAmp(1:length(SPL),:);
+%     Attenuation = P.Attenuations(1:length(SPL),:);
+    LinAmp          = P.LinAmp(ic(iSPL),:); % eric 26/Mar/2019
+    Attenuation     = P.Attenuations(ic(iSPL),:);   % eric 26/Mar/2019
+    Thr_lim(ifreq)  = SPL(end); % added by Jan (April 2018) to plot the limit
 
     
 %     % Original (before Jan 2018)

@@ -20,6 +20,8 @@ function P = clickStim(P, varargin);
 %         ModITD: ITD imposed on modulation in ms
 %            DAC: left|right|both active DAC channel(s)
 %            SPL: carrier sound pressure level [dB SPL]
+%         AmpRef: Which Amplitude reference is used, SPL value or 100Hz ref
+%        
 %
 %   Most of these parameters may be a scalar or a [1 2] array, or
 %   a [Ncond x 1] or [Ncond x 2] or array, where Ncond is the number of
@@ -115,7 +117,7 @@ for ichan=1:Nchan,
         % compute the waveform
         [w, fcar, fmod] = local_Waveform(chanStr, P.Experiment, Fsam, ISI(idx), ...
             FineDelay(idx), GateDelay(idx), OnsetDelay(idx), RiseDur(idx), FallDur(idx), ...
-            C, WavePhase(idx), PulseWidth(idx), PulseType(idx), SPL(idx));
+            C, WavePhase(idx), PulseWidth(idx), PulseType(idx), SPL(idx), P.AmpRef);
         P.Waveform(icond,ichan) = w;
         % derived stim params
         P.Fcar(icond,ichan) = fcar;
@@ -132,7 +134,7 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 %===================================================
 function  [W, Fcar, Fmod] = local_Waveform(DAchan, EXP, Fsam, ISI, ...
     FineDelay, GateDelay, OnsetDelay, RiseDur, FallDur, ...
-    C, WavePhase, PulseWidth, PulseType, SPL);
+    C, WavePhase, PulseWidth, PulseType, SPL, AmpRef);
 % Generate the waveform from the elementary parameters
 %=======TIMING, DURATIONS & SAMPLE COUNTS=======
 BurstDur = C.Dur;
@@ -192,7 +194,7 @@ end
 
 SPLtheor = 6+P2dB(mean(real(ifft(pulseSpec./calibrator)).^2)); % calibration-weighted sum of all components of click
 SPLtheor = SPLtheor + P2dB(NsamF/NsamT); % compensate for truncation in time domain
-SPLtheor = SPLtheor + P2dB(SFreq*PbufWidth*1e-3); % compensate for the fact that true rate ~= 1/MaxWidth
+
 pulseBuf = pulseBuf(1:NsamT);
 
 dt = 1e3/Fsam; % sample period in ms
@@ -230,6 +232,11 @@ ScaleFactor = 1/max(abs(CycBuf));
 
 % waveform is generated @ the target SPL. Scaling is divided
 % between numerical scaling and analog attenuation later on.
+if strcmp(AmpRef, 'SPL')
+    SPLtheor = SPLtheor + P2dB(SFreq*PbufWidth*1e-3); % compensate for the fact that true rate ~= 1/MaxWidth
+else
+    SPLtheor = SPLtheor + P2dB(100*PbufWidth*1e-3); % use reference 100 Hz value
+end 
 Amp = dB2A(SPL)*sqrt(2)/dB2A(SPLtheor); % numerical linear amplitudes of the carrier ...
 CycBuf = Amp(1) * CycBuf * ScaleFactor;
 
