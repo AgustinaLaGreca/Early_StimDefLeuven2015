@@ -91,8 +91,8 @@ P = SCHRStim(P); % P contains both Experiment (calib etc) & params, including P.
 P = sortConditions(P, {'Fcar' 'C'}, {'Carrier frequency' 'Carrier Intensity'}, ...
     {'Hz' 'rad'}, {'Hz' 'Linear'});
 % Compute RMS values
-%P.RMS = getWaveformsRMS(P.Waveform);
-%P.RMSav = mean(P.RMS,1,'omitnan');
+P.RMS = getWaveformsRMS(P.Waveform);
+P.RMSav = mean(P.RMS,1,'omitnan');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
