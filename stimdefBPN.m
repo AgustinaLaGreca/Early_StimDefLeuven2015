@@ -17,13 +17,23 @@ ClickStr = ' Click button to select ';
 Fsweep = FrequencyStepperARMIN_new('flip frequency',EXP);
 
 % Noise
-Noise = NoisePanelARMIN_new('noise param', EXP);
+% Noise = NoisePanelARMIN_new('noise param', EXP);
+% Noise
+Noise = NoisePanel('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
+% Fix SPL unit
+noiseChildren = Noise.Children;
+for ch = 1:length(noiseChildren)
+    if isa(noiseChildren{ch},'ParamQuery') && strcmp(noiseChildren{ch}.Name,'SPL')
+        Noise.Children{ch}.Unit = 'dB SPL';
+        break;
+    end
+end
 
 % Const Channel
-Const = ConstChannelPanelARMIN('Constant Channel');
+%Const = ConstChannelPanelARMIN('Constant Channel');
 
 % Varied Channel
-Var = VariedChannelARMIN('Varied Channel');
+%Var = VariedChannelARMIN('Varied Channel');
 
 % ---Durations
 Dur = DurPanel('-', EXP);
