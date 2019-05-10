@@ -1,4 +1,4 @@
-function P2=makestimARMIN_old(P);
+function P2=makestimBPN(P)
 % MakestimARMIN - stimulus generator for ARMIN stimGUI
 %    P=MakestimARMIN(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimARMIN is typically called by StimGuiAction when
@@ -35,6 +35,9 @@ figh = P.handle.GUIfig;
 
 % Flip frequency: add it to stimparam struct P
 P.FlipFreq=EvalFrequencyStepperARMIN(figh, '', P); 
+
+%choosing the cutoff side
+
 P.FlipFreq=[P.LowFreq; P.HighFreq; P.FlipFreq]; % Add the Endpoints to the flip frequencies
 if isempty(P.FlipFreq), return; end
 Ncond = size(P.FlipFreq,1); % # conditions
