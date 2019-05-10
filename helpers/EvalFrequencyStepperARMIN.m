@@ -1,4 +1,4 @@
-function Freq=EvalFrequencyStepperARMIN(figh, Prefix, P);
+xfunction Freq=EvalFrequencyStepperARMIN(figh, Prefix, P);
 % EvalFrequencyStepper - compute frequency series from Frequency stepper GUI
 %   Freq=EvalFrequencyStepper(figh) reads frequency-stepper specs
 %   from paramqueries StartFreq, StepFrequency, EndFrequency, AdjustFreq,
