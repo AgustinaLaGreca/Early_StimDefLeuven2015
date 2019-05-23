@@ -26,7 +26,9 @@ function P = noiseStim(P, varargin);
 %            SPL: sound pressure level [dB SPL]
 %        SPLtype: meaning of SPL. total level | spectrum level
 %        Reverse: noise direction ('Normal' or 'Reverse')
-%
+%     CutoffSide: to select which edge to vary during the cycles;
+%                 L varies the lower edge, H varies the higher edge  
+% 
 %   Most of these parameters may be a scalar or a [1 2] array, or 
 %   a [Ncond x 1] or [Ncond x 2] or array, where Ncond is the number of 
 %   stimulus conditions. The allowed number of columns (1 or 2) depends on
@@ -226,15 +228,15 @@ T.TimeWarpFactor = ones(Ncond,1);
 % ======freqs======
 F.Fsam = S.Fsam;
 F.Fcar = nan(Ncond,2,ID.Ntone);
-F.Fmod = SameSize(channelSelect('B', S.ModFreq), Nx2);
+F.Fmod = SameSize(channelSelect('B', 0), Nx2);
 F.LowCutoff = SameSize(channelSelect('B', S.LowFreq), Nx2);
 F.HighCutoff = SameSize(channelSelect('B', S.HighFreq), Nx2);
 F.FreqWarpFactor = ones(Ncond,1);
 % ======startPhases & mod Depths
 Y.CarStartPhase = nan([Ncond 2 ID.Ntone]);
-Y.ModStartPhase = SameSize(channelSelect('B', S.ModStartPhase), Nx2);
-Y.ModTheta = SameSize(channelSelect('B', S.ModTheta), Nx2);
-Y.ModDepth = SameSize(channelSelect('B', S.ModDepth), Nx2);
+Y.ModStartPhase = SameSize(channelSelect('B', 0), Nx2);
+Y.ModTheta = SameSize(channelSelect('B', 0), Nx2);
+Y.ModDepth = SameSize(channelSelect('B', 0), Nx2);
 % ======levels======
 L.SPL = SameSize(channelSelect('B', S.SPL), Nx2);
 if isequal('dB/Hz', S.SPLUnit), L.SPLtype = 'spectrum level';

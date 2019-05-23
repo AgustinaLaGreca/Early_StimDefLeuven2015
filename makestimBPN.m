@@ -1,4 +1,4 @@
-function P2=makestimNSAM(P)
+function P2=makestimBPN(P)
 % makestimNSAM - stimulus generator for RCN stimGUI
 %    P=makestimNSAM(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimRCN is typically called by StimGuiAction when
@@ -54,7 +54,7 @@ P.IFD = 0; % zero interaural frequency difference
 
 % mix Freq & SPL sweeps; # conditions = # Freqs times # SPLs. By
 % convention, freq is updated faster. 
-% [P.FlipFreq, P.SPL, P.Ncond_XY] = MixSweeps(P.FlipFreq, P.SPL);
+[P.FlipFreq, P.SPL, P.Ncond_XY] = MixSweeps(P.FlipFreq, P.SPL);
 % P.SPLUnit = 'dB SPL';
 % maxNcond = P.Experiment.maxNcond;
 % if prod(P.Ncond_XY)>maxNcond,
@@ -68,7 +68,9 @@ P.IFD = 0; % zero interaural frequency difference
 [okay, P]=EvalDurPanel(figh, P, Ncond);% ... FineITD, GateITD, ModITD fields to P
 if ~okay, return; end
 
-
+% Noise parameters (SPL cannot be checked yet)
+[okay, ~,P] = EvalNoisePanel(figh, P);
+if ~okay, return; end
 
 % Durations & PlayTime messenger
 okay=EvalDurPanel(figh, P, P.Ncond_XY);
@@ -76,8 +78,12 @@ okay=EvalDurPanel(figh, P, P.Ncond_XY);
 % Use generic noise generator to generate waveforms
 P = noiseStimBPN(P); 
 
+% P.Slowest='Freq';
+% P.Nextslow='SPL';
+% P.Fastest='Rep';
+
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
-P = sortConditions(P, 'SPL', 'Sound Pressure Level', 'dB', 'lin');
+P = sortConditions(P, 'FlipFreq', 'Flip frequency', 'Hz', P.StepFreqUnit);
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
