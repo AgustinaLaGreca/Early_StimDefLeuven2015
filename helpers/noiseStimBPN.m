@@ -146,7 +146,7 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, CorrChan, ...
     SPL, SPLtype, Reverse);
 % Generate the waveform from the elementary parameters
-Corr = corr2refcorr(Corr, CorrChan, chanChar, EXP); % 1 or Corr, depending on varied chan
+Corr = 1; % 1 because we are not varying the channel
 % complex spectrum
 NS = NoiseSpec(Fsam, BurstDur, NoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, Corr);
 % apply calibration, phase shift and ongoing delay while still in freq domain
