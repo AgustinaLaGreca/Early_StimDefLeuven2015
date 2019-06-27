@@ -1,6 +1,6 @@
-function P = noiseStim(P, varargin); 
-% noiseStim - compute noise stimulus
-%   P = noiseStim(P) computes the waveforms of noise stimuli.
+function P = noiseStimBPN(P, varargin); 
+% noiseStimARMIN - compute noise stimulus
+%   P = noiseStimARMIN(P) computes the waveforms of noise stimuli.
 %   The stimulus parameters are supplied as a struct P. Its values may have
 %   multiple values, their rows coresponding to subsequent stimulus
 %   conditions, and the columns to the DA channels. The Experiment field of
@@ -10,6 +10,10 @@ function P = noiseStim(P, varargin);
 %        LowFreq: low cutoff frequency in Hz
 %       HighFreq: high cutoff frequency in Hz
 %      NoiseSeed: random seed for noise generation
+%        ModFreq: modulation frequency in Hz
+%       ModDepth: modulation depth in %
+%       ModStartPhase: modulation starting phase in cycles (0=cosine)
+%       ModTheta: modulation angle in Cycle (0=AM, 0.25=QFM, other=mixed)
 %            ISI: onset-to-onset inter-stimulus interval in ms
 %     OnsetDelay: silent interval (ms) preceding onset (common to both DACs)
 %       BurstDur: burst duration in ms including ramps
@@ -24,11 +28,8 @@ function P = noiseStim(P, varargin);
 %       CorrChan: channel in which to realize Corr (I|C|L|R)
 %            DAC: left|right|both active DAC channel(s)
 %            SPL: sound pressure level [dB SPL]
-%        SPLtype: meaning of SPL. total level | spectrum level
-%        Reverse: noise direction ('Normal' or 'Reverse')
-%     CutoffSide: to select which edge to vary during the cycles;
-%                 L varies the lower edge, H varies the higher edge  
-% 
+%        SPLtype: meaning of SPL. total level | spectrum level 
+%
 %   Most of these parameters may be a scalar or a [1 2] array, or 
 %   a [Ncond x 1] or [Ncond x 2] or array, where Ncond is the number of 
 %   stimulus conditions. The allowed number of columns (1 or 2) depends on
@@ -38,7 +39,7 @@ function P = noiseStim(P, varargin);
 %   have only a single column, and SPLtype, which is a single char string 
 %   that applies to all of the conditions.
 %   
-%   The output of noiseStim is realized by updating/creating the following 
+%   The output of noiseStimBPN is realized by updating/creating the following 
 %   fields of P
 %          Fsam: sample rate [Hz] of all waveforms.
 %      Duration: stimulus duration [ms] in Ncond x Nchan array. 
@@ -55,12 +56,12 @@ function P = noiseStim(P, varargin);
 %                    {@noiseStim struct([]) 'GenericStimParams'}
 %                After substituting the updated stimulus struct for
 %                struct([]), feval-ing this cell array will yield the 
-%                generic stimulus parameters for noiseStim stimuli. 
+%                generic stimulus parameters for noiseStimARMIN stimuli. 
 %
 %   For the realization of ITDs, IPDs and IFDs in terms of channelwise 
 %   delays or disparities, see ITD2delay, IPD2phaseShift, IFD2freqShift.
 %
-%   noiseStim(P, 'GenericStimParams') returns the generic stimulus
+%   noiseStimBPN(P, 'GenericStimParams') returns the generic stimulus
 %   parameters for this class of noise stimuli. This call is done via
 %   GenericStimParams, based on the GenericParamsCall field described above.
 %
@@ -77,23 +78,20 @@ if nargin>1
 end
 S = [];
 % test the channel restrictions described in the help text
-error(local_test_singlechan(P,{'NoiseSeed', 'FineITD', 'GateITD', 'ModITD', 'IPD', 'IFD', 'Corr', 'ISI'}));
+error(local_test_singlechan(P,{'NoiseSeed' ,'FineITD', 'GateITD', 'ModITD', 'IPD', 'IFD', 'Corr', 'ISI'}));
 % "rename" some common fields
-if ~isfield(P, 'CorrChan'), P.CorrChan = P.CorrUnit; end % channel used for varying interaural noise correlation
-if ~isfield(P, 'SPLtype'), P.SPLtype = P.SPLUnit; end % total level vs spectrum level
-
-% check if noise direction field exists, Normal otherwise. Marta 09/18
-if ~isfield(P,'Reverse'), P.Reverse = 'Normal'; end
-
+% if ~isfield(P, 'CorrChan'), P.CorrChan = P.VariedChannel; end % channel used for varying interaural noise correlation
+%         the above code is removed as BPN has only a constant channel
+if ~isfield(P, 'StartSPLUnit'), P.SPLtype = P.SPLUnit; end % total level vs spectrum level
 % There are Ncond conditions and Nch DA channels.
 % Cast all numerical params in Ncond x Nch size, so we don't have to check
 % sizes all the time.
-[LowFreq, HighFreq, NoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
+[LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    FineITD, GateITD, ModITD, IPD, IFD, Corr, SPL] ...
-    = SameSize(P.LowFreq, P.HighFreq, P.NoiseSeed, 0,0,0,0, ...
+    FineITD, GateITD, ModITD, IPD, IFD, Corr, SPL, NoiseSeed, ] ...
+    = SameSize(P.LowFreq, P.HighFreq, P.FlipFreq, P.ConstNoiseSeed, 0, 0, 0, 0, ...
     P.ISI, P.OnsetDelay, P.BurstDur, P.RiseDur, P.FallDur, ...
-    P.FineITD, P.GateITD, P.ModITD, P.IPD, P.IFD, P.Corr, P.SPL);
+    P.FineITD, P.GateITD, P.ModITD, P.IPD, P.IFD, P.Corr, P.SPL, P.NoiseSeed);
 % sign convention of ITD is specified by Experiment. Convert ITD to a nonnegative per-channel delay spec 
 FineDelay = ITD2delay(FineITD(:,1), P.Experiment); % fine-structure binaural delay
 GateDelay = ITD2delay(GateITD(:,1), P.Experiment); % gating binaural delay
@@ -102,35 +100,58 @@ PhaseShift = IPD2phaseShift(IPD(:,1), P.Experiment); % per-channel phase shift f
 FreqShift = IFD2freqShift(IFD(:,1), P.Experiment); % per-channel freq shift from IFD 
 % Restrict the parameters to the active channels. If only one DA channel is
 % active, DAchanStr indicates which one.
-[DAchanStr, LowFreq, HighFreq, NoiseSeed, ...
+[DAchanStr, LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ... 
     FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, ...
-    SPL] ...
-    = channelSelect(P.DAC, 'LR', LowFreq, HighFreq, NoiseSeed, ...
+    SPL, NoiseSeed] ...
+    = channelSelect(P.DAC, 'LR', LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, ...
-    SPL);
+    SPL, NoiseSeed);
 % find the single sample rate to realize all the waveforms while  ....
 Fsam = sampleRate(HighFreq+ModFreq, P.Experiment); % ... accounting for recording requirements minADCrate
 % compute the stimulus waveforms condition by condition, ear by ear.
 [Ncond, Nchan] = size(LowFreq);
+Exp = P.Experiment;
 for ichan=1:Nchan,
     chanStr = DAchanStr(ichan); % L|R
+    par_LowFreq = LowFreq((ichan-1)*Ncond+1:ichan*Ncond);
+    par_HighFreq = HighFreq((ichan-1)*Ncond+1:ichan*Ncond);
+    par_FlipFreq = FlipFreq((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ConstNoiseSeed = ConstNoiseSeed((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ModFreq = ModFreq((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ModDepth = ModDepth((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ModStartPhase = ModStartPhase((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ModTheta = ModTheta((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ISI = ISI((ichan-1)*Ncond+1:ichan*Ncond);
+    par_OnsetDelay = OnsetDelay((ichan-1)*Ncond+1:ichan*Ncond);
+    par_BurstDur = BurstDur((ichan-1)*Ncond+1:ichan*Ncond);
+    par_RiseDur = RiseDur((ichan-1)*Ncond+1:ichan*Ncond);
+    par_FallDur = FallDur((ichan-1)*Ncond+1:ichan*Ncond);
+    par_FineDelay = FineDelay((ichan-1)*Ncond+1:ichan*Ncond);
+    par_GateDelay = GateDelay((ichan-1)*Ncond+1:ichan*Ncond);
+    par_ModDelay = ModDelay((ichan-1)*Ncond+1:ichan*Ncond);
+    par_PhaseShift = PhaseShift((ichan-1)*Ncond+1:ichan*Ncond);
+    par_FreqShift = FreqShift((ichan-1)*Ncond+1:ichan*Ncond);
+    par_Corr = Corr((ichan-1)*Ncond+1:ichan*Ncond);
+    par_SPL = SPL((ichan-1)*Ncond+1:ichan*Ncond);
+    par_NoiseSeed = NoiseSeed((ichan-1)*Ncond+1:ichan*Ncond);
     for icond=1:Ncond,
         % select the current element from the param matrices. All params ...
         % are stored in a (iNcond x Nchan) matrix. Use a single index idx 
         % to avoid the cumbersome A(icond,ichan).
-        idx = icond + (ichan-1)*Ncond;
         % compute the waveform
-        P.Waveform(icond,ichan) = local_Waveform(chanStr, P.Experiment, Fsam, ...
-            LowFreq(idx), HighFreq(idx), NoiseSeed(idx), ...
-            ModFreq(idx), ModDepth(idx), ModStartPhase(idx), ModTheta(idx), ...
-            ISI(idx), OnsetDelay(idx), BurstDur(idx), RiseDur(idx), FallDur(idx), ...
-            FineDelay(idx), GateDelay(idx), ModDelay(idx), PhaseShift(idx), FreqShift(idx), Corr(idx), P.CorrChan, ...
-            SPL(idx), P.SPLtype, P.Reverse);
+        Q(icond) = local_Waveform(chanStr, Exp, Fsam, ...
+            par_LowFreq(icond), par_HighFreq(icond), par_FlipFreq(icond), par_ConstNoiseSeed(icond), ...
+            par_ModFreq(icond), par_ModDepth(icond), par_ModStartPhase(icond), par_ModTheta(icond), ...
+            par_ISI(icond), par_OnsetDelay(icond), par_BurstDur(icond), par_RiseDur(icond), par_FallDur(icond), ...
+            par_FineDelay(icond), par_GateDelay(icond), par_ModDelay(icond), par_PhaseShift(icond), ...
+            par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, icond);
     end
+        P.Waveform(:,ichan) = Q;
+
 end
 P.Duration = SameSize(P.BurstDur, zeros(Ncond,Nchan)); 
 P = structJoin(P, CollectInStruct(FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Fsam));
@@ -140,19 +161,29 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 %===================================================
 %===================================================
 function  W = local_Waveform(chanChar, EXP, Fsam, ...
-    LowFreq, HighFreq, NoiseSeed, ...
+    LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, CorrChan, ...
-    SPL, SPLtype, Reverse);
+    FineDelay, GateDelay, ModDelay, PhaseShift, ...
+    FreqShift, Corr, SPL, SPLtype, CutoffSide, iteration);
 % Generate the waveform from the elementary parameters
-Corr = 1; % 1 because we are not varying the channel
-% complex spectrum
-NS = NoiseSpec(Fsam, BurstDur, NoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, Corr);
+
+    % Noise generation
+   if(iteration<=2)
+        NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
+   else
+        if(CutoffSide=='L')
+           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [FlipFreq, HighFreq], SPL, SPLtype, 1);
+        else
+           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, FlipFreq], SPL, SPLtype, 1);
+        end
+   end
 % apply calibration, phase shift and ongoing delay while still in freq domain
 n = NS.Buf.*calibrate(EXP, Fsam, chanChar, -NS.Freq, 1); % last one: complex phase factor; neg freqs: don't bother about freqs outside calib range
 n = n.*exp(2*pi*i*(PhaseShift-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
 % go to time domain (complex analytical waveforms) and apply modulation, freq shift & gating.
+
+
 n = ifft(n);
 dt = 1e3/Fsam; % ms sample period
 n = n(1:ceil((GateDelay+BurstDur)/dt)); % throw away unused buffer tail
@@ -161,31 +192,36 @@ if (ModFreq>0) && (ModDepth~=0),
     n = SinMod(n, Fsam, ph0, ModFreq, ModDepth, ModTheta);
 end
 if ~isequal(0,FreqShift), % heterodyne
-    n = n.*exp(2*pi*i*1e-3*FreqShift*Xaxis(n,dt));
+    n = n.*exp(2*pi*i*1e-3*FreqShift*xaxis(n,dt));
 end
 % Depending on user preference, store complex analytic waveforms or take real part
 if ~logical(EXP.StoreComplexWaveforms); 
     n = real(n);
 end
 % gating
-% subplot(211)
-
 n = ExactGate(n, Fsam, BurstDur, GateDelay, RiseDur, FallDur);
-
-% Flip the signal depending on user preference input
-if isequal(Reverse,'Reverse') % added by Jan 2018
-    n = flipud(n); 
-end
-
-
 % convert to waveform object & provide heading & trailing silence
-P = CollectInStruct(LowFreq, HighFreq, NoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
+P = CollectInStruct(LowFreq, HighFreq, ConstNoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, CorrChan, ...
-    SPL, SPLtype, Reverse); % store stim parameters for debugging purposes
+    FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, ...
+    SPL, SPLtype); % store stim parameters for debugging purposes
 NsamOnsetDelay = round(OnsetDelay/dt);
 W = Waveform(Fsam, chanChar, NaN, SPL, P, {0 n}, [NsamOnsetDelay 1]);
 W = AppendSilence(W, ISI);
+
+% plotting the FFT of the waveform to test the stimulus
+%     y = fft(W.Samples);
+%     L=length(W.Samples);
+    y=n;
+    L=length(n);
+    f = (0:L-1)*(Fsam/L);     % frequency range
+    power = abs(y).^2/L; 
+    figure;
+    plot(f,power);
+    xlabel('Frequency');
+    ylabel('Power');
+    close;  
+
 
 function Mess = local_test_singlechan(P, FNS);
 % test whether specified fields of P have single chan values
@@ -239,6 +275,7 @@ Y.ModTheta = SameSize(channelSelect('B', 0), Nx2);
 Y.ModDepth = SameSize(channelSelect('B', 0), Nx2);
 % ======levels======
 L.SPL = SameSize(channelSelect('B', S.SPL), Nx2);
+% S.SPLUnit = S.StartSPLUnit;
 if isequal('dB/Hz', S.SPLUnit), L.SPLtype = 'spectrum level';
 elseif isequal('dB SPL', S.SPLUnit), L.SPLtype = 'total level';
 end
