@@ -212,15 +212,15 @@ W = AppendSilence(W, ISI);
 % plotting the FFT of the waveform to test the stimulus
 %     y = fft(W.Samples);
 %     L=length(W.Samples);
-    y=n;
-    L=length(n);
-    f = (0:L-1)*(Fsam/L);     % frequency range
-    power = abs(y).^2/L; 
-    figure;
-    plot(f,power);
-    xlabel('Frequency');
-    ylabel('Power');
-    close;  
+%     y=n;
+%     L=length(n);
+%     f = (0:L-1)*(Fsam/L);     % frequency range
+%     power = abs(y).^2/L; 
+%     figure;
+%     plot(f,power);
+%     xlabel('Frequency');
+%     ylabel('Power');
+%     close;  
 
 
 function Mess = local_test_singlechan(P, FNS);
