@@ -1,16 +1,19 @@
 function P2=makestimBPN(P)
-% makestimNSAM - stimulus generator for RCN stimGUI
-%    P=makestimNSAM(P), where P is returned by GUIval, generates the stimulus
-%    specified in P. MakestimRCN is typically called by StimGuiAction when
+% 
+% Note: This function is a form modified of makestim, makestimARMIN, and makestimNSAM
+% 
+% makestimBPN - stimulus generator for BPN stimGUI
+%    P=makestimBPN(P), where P is returned by GUIval, generates the stimulus
+%    specified in P. MakestimBPN is typically called by StimGuiAction when
 %    the user pushes the Check, Play or PlayRec button.
-%    MakestimRCN does the following:
+%    MakestimBPN does the following:
 %        * Complete check of the stimulus parameters and their mutual
 %          consistency, while reporting any errors
 %        * Compute the stimulus waveforms
 %        * Computation and broadcasting info about # conditions, total
 %          stimulus duration, Max SPL, etc.
 %
-%    makestimNSAM renders P ready for D/A conversion by adding the following 
+%    makestimBPN renders P ready for D/A conversion by adding the following 
 %    fields to P
 %            Fsam: sample rate [Hz] of all waveforms. This value is
 %                  determined by the stimulus spectrum, but also by
@@ -33,11 +36,11 @@ figh = P.handle.GUIfig;
 % check & convert params. Note that helpers like evalphaseStepper
 % report any problems to the GUI and return [] or false in case of problems.
 
-% Flip frequency: add it to stimparam struct P
-P.FlipFreq=EvalFrequencyStepper(figh, '', P); 
-P.FlipFreq=[P.LowFreq; P.HighFreq; P.FlipFreq]; % Add the Endpoints to the flip frequencies
-if isempty(P.FlipFreq), return; end
-Ncond = size(P.FlipFreq,1); % # conditions
+% Cutoff frequency: add it to stimparam struct P
+P.CutoffFreq=EvalFrequencyStepper(figh, '', P); 
+P.CutoffFreq=[0; P.CutoffFreq]; % Added a placeholder endpoint to the Cutoff frequencies for generating full band noise
+if isempty(P.CutoffFreq), return; end
+Ncond = size(P.CutoffFreq,1); % # conditions
 
 % Noise parameters (SPL cannot be checked yet)
 [okay, P.NoiseSeed] = EvalNoisePanel(figh, P);
@@ -54,7 +57,7 @@ P.IFD = 0; % zero interaural frequency difference
 
 % mix Freq & SPL sweeps; # conditions = # Freqs times # SPLs. By
 % convention, freq is updated faster. 
-[P.FlipFreq, P.SPL, P.Ncond_XY] = MixSweeps(P.FlipFreq, P.SPL);
+[P.CutoffFreq, P.SPL, P.Ncond_XY] = MixSweeps(P.CutoffFreq, P.SPL);
 % P.SPLUnit = 'dB SPL';
 % maxNcond = P.Experiment.maxNcond;
 % if prod(P.Ncond_XY)>maxNcond,
@@ -83,7 +86,7 @@ P = noiseStimBPN(P);
 % P.Fastest='Rep';
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
-P = sortConditions(P, 'FlipFreq', 'Flip frequency', 'Hz', P.StepFreqUnit);
+P = sortConditions(P, 'CutoffFreq', 'Cutoff frequency', 'Hz', P.StepFreqUnit);
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
@@ -91,6 +94,6 @@ okay = CheckSPL(figh, P.SPL, mxSPL, [], 'MaxSPL', 'SPL');
 if ~okay, return; end
 
 % Summary
-ReportSummary(figh, P);
+ReportSummaryBPN(figh, P);
 
 P2=P;

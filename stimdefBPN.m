@@ -9,17 +9,19 @@ function Params = stimdefBPN(EXP)
 %    the stimulus: availability of DAC channels, calibration, recording
 %    side, etc.
 %
-%    See also stimGUI, stimDefDir, Experiment, makestimBPN, stimparamsARMIN.
+%    See also stimGUI, stimDefDir, Experiment, makestimBPN.
+%    
+%    Fuction created by Gowtham on 28/06/2019
 
 PairStr = ' Pairs of numbers are interpreted as [left right].';
 ClickStr = ' Click button to select ';
+
 % Carrier frequency GUIpanel
-Fsweep = FrequencyStepperBPN('flip frequency',EXP);
+Fsweep = FrequencyStepperBPN('Cutoff Frequency',EXP);
 
 % Noise
-% Noise = NoisePanelARMIN_new('noise param', EXP);
-% Noise
 Noise = NoisePanel('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
+
 % Fix SPL unit
 noiseChildren = Noise.Children;
 for ch = 1:length(noiseChildren)
@@ -29,26 +31,16 @@ for ch = 1:length(noiseChildren)
     end
 end
 
-% Const Channel
-%Const = ConstChannelPanelARMIN('Constant Channel');
-
-% Varied Channel
-%Var = VariedChannelARMIN('Varied Channel');
-
 % ---Durations
-% Dur = DurPanel('-', EXP);     % duration panel is changed to NSAM's
-
 Dur = DurPanel('-', EXP, '', 'nophase'); % exclude phase query in Dur panel
-% Dur = sameextent(Dur,SAMsweep,'X'); % adjust width   %% copied from NSAM
 
 % ---Pres
-% Pres = PresentationPanel_XY('Freq','SPL');     %presentation panel is changed to NSAM's
 
 Pres = PresentationPanel;
 Pres = sameextent(Pres,Noise,'X'); % adjust width
 
 % ---Summary
-summ = Summary(17);
+summ = Summary(22);
 
 %====================
 Params=GUIpiece('Params'); % upper half of GUI: parameters

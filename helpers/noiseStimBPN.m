@@ -1,6 +1,9 @@
 function P = noiseStimBPN(P, varargin); 
-% noiseStimARMIN - compute noise stimulus
-%   P = noiseStimARMIN(P) computes the waveforms of noise stimuli.
+% 
+% Note: This function is a form modified of noiseStimARMIN.
+% 
+% noiseStimBPN - compute noise stimulus
+%   P = noiseStimBPN(P) computes the waveforms of noise stimuli.
 %   The stimulus parameters are supplied as a struct P. Its values may have
 %   multiple values, their rows coresponding to subsequent stimulus
 %   conditions, and the columns to the DA channels. The Experiment field of
@@ -9,10 +12,10 @@ function P = noiseStimBPN(P, varargin);
 %   compute the waveforms
 %        LowFreq: low cutoff frequency in Hz
 %       HighFreq: high cutoff frequency in Hz
-%      NoiseSeed: random seed for noise generation
+% ConstNoiseSeed: random seed for noise generation
 %        ModFreq: modulation frequency in Hz
 %       ModDepth: modulation depth in %
-%       ModStartPhase: modulation starting phase in cycles (0=cosine)
+%  ModStartPhase: modulation starting phase in cycles (0=cosine)
 %       ModTheta: modulation angle in Cycle (0=AM, 0.25=QFM, other=mixed)
 %            ISI: onset-to-onset inter-stimulus interval in ms
 %     OnsetDelay: silent interval (ms) preceding onset (common to both DACs)
@@ -28,7 +31,12 @@ function P = noiseStimBPN(P, varargin);
 %       CorrChan: channel in which to realize Corr (I|C|L|R)
 %            DAC: left|right|both active DAC channel(s)
 %            SPL: sound pressure level [dB SPL]
-%        SPLtype: meaning of SPL. total level | spectrum level 
+%        SPLtype: meaning of SPL. total level | spectrum level
+%     CutoffFreq: contains the cutoff freqencies for the noise
+%     CutoffSide: determines whether the higher or lower edge will be varied
+%      PowerCorr: to select whether the power level of the signal will be
+%                 corrected to a constant level
+% 
 %
 %   Most of these parameters may be a scalar or a [1 2] array, or 
 %   a [Ncond x 1] or [Ncond x 2] or array, where Ncond is the number of 
@@ -56,7 +64,7 @@ function P = noiseStimBPN(P, varargin);
 %                    {@noiseStim struct([]) 'GenericStimParams'}
 %                After substituting the updated stimulus struct for
 %                struct([]), feval-ing this cell array will yield the 
-%                generic stimulus parameters for noiseStimARMIN stimuli. 
+%                generic stimulus parameters for noiseStimBPN stimuli. 
 %
 %   For the realization of ITDs, IPDs and IFDs in terms of channelwise 
 %   delays or disparities, see ITD2delay, IPD2phaseShift, IFD2freqShift.
@@ -86,10 +94,10 @@ if ~isfield(P, 'StartSPLUnit'), P.SPLtype = P.SPLUnit; end % total level vs spec
 % There are Ncond conditions and Nch DA channels.
 % Cast all numerical params in Ncond x Nch size, so we don't have to check
 % sizes all the time.
-[LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
+[LowFreq, HighFreq, CutoffFreq, ConstNoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    FineITD, GateITD, ModITD, IPD, IFD, Corr, SPL, NoiseSeed, ] ...
-    = SameSize(P.LowFreq, P.HighFreq, P.FlipFreq, P.ConstNoiseSeed, 0, 0, 0, 0, ...
+    FineITD, GateITD, ModITD, IPD, IFD, Corr, SPL ] ...
+    = SameSize(P.LowFreq, P.HighFreq, P.CutoffFreq, P.ConstNoiseSeed, 0, 0, 0, 0, ...
     P.ISI, P.OnsetDelay, P.BurstDur, P.RiseDur, P.FallDur, ...
     P.FineITD, P.GateITD, P.ModITD, P.IPD, P.IFD, P.Corr, P.SPL, P.NoiseSeed);
 % sign convention of ITD is specified by Experiment. Convert ITD to a nonnegative per-channel delay spec 
@@ -100,16 +108,16 @@ PhaseShift = IPD2phaseShift(IPD(:,1), P.Experiment); % per-channel phase shift f
 FreqShift = IFD2freqShift(IFD(:,1), P.Experiment); % per-channel freq shift from IFD 
 % Restrict the parameters to the active channels. If only one DA channel is
 % active, DAchanStr indicates which one.
-[DAchanStr, LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
+[DAchanStr, LowFreq, HighFreq, CutoffFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ... 
     FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, ...
-    SPL, NoiseSeed] ...
-    = channelSelect(P.DAC, 'LR', LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
+    SPL] ...
+    = channelSelect(P.DAC, 'LR', LowFreq, HighFreq, CutoffFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, FreqShift, Corr, ...
-    SPL, NoiseSeed);
+    SPL);
 % find the single sample rate to realize all the waveforms while  ....
 Fsam = sampleRate(HighFreq+ModFreq, P.Experiment); % ... accounting for recording requirements minADCrate
 % compute the stimulus waveforms condition by condition, ear by ear.
@@ -119,7 +127,7 @@ for ichan=1:Nchan,
     chanStr = DAchanStr(ichan); % L|R
     par_LowFreq = LowFreq((ichan-1)*Ncond+1:ichan*Ncond);
     par_HighFreq = HighFreq((ichan-1)*Ncond+1:ichan*Ncond);
-    par_FlipFreq = FlipFreq((ichan-1)*Ncond+1:ichan*Ncond);
+    par_CutoffFreq = CutoffFreq((ichan-1)*Ncond+1:ichan*Ncond);
     par_ConstNoiseSeed = ConstNoiseSeed((ichan-1)*Ncond+1:ichan*Ncond);
     par_ModFreq = ModFreq((ichan-1)*Ncond+1:ichan*Ncond);
     par_ModDepth = ModDepth((ichan-1)*Ncond+1:ichan*Ncond);
@@ -137,18 +145,17 @@ for ichan=1:Nchan,
     par_FreqShift = FreqShift((ichan-1)*Ncond+1:ichan*Ncond);
     par_Corr = Corr((ichan-1)*Ncond+1:ichan*Ncond);
     par_SPL = SPL((ichan-1)*Ncond+1:ichan*Ncond);
-    par_NoiseSeed = NoiseSeed((ichan-1)*Ncond+1:ichan*Ncond);
     for icond=1:Ncond,
         % select the current element from the param matrices. All params ...
         % are stored in a (iNcond x Nchan) matrix. Use a single index idx 
         % to avoid the cumbersome A(icond,ichan).
         % compute the waveform
         Q(icond) = local_Waveform(chanStr, Exp, Fsam, ...
-            par_LowFreq(icond), par_HighFreq(icond), par_FlipFreq(icond), par_ConstNoiseSeed(icond), ...
+            par_LowFreq(icond), par_HighFreq(icond), par_CutoffFreq(icond), par_ConstNoiseSeed(icond), ...
             par_ModFreq(icond), par_ModDepth(icond), par_ModStartPhase(icond), par_ModTheta(icond), ...
             par_ISI(icond), par_OnsetDelay(icond), par_BurstDur(icond), par_RiseDur(icond), par_FallDur(icond), ...
             par_FineDelay(icond), par_GateDelay(icond), par_ModDelay(icond), par_PhaseShift(icond), ...
-            par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, icond);
+            par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, icond, P.PowerCorr);
     end
         P.Waveform(:,ichan) = Q;
 
@@ -161,29 +168,29 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 %===================================================
 %===================================================
 function  W = local_Waveform(chanChar, EXP, Fsam, ...
-    LowFreq, HighFreq, FlipFreq, ConstNoiseSeed, ...
+    LowFreq, HighFreq, CutoffFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, ...
-    FreqShift, Corr, SPL, SPLtype, CutoffSide, iteration);
+    FreqShift, Corr, SPL, SPLtype, CutoffSide, iteration, PowerCorr);
 % Generate the waveform from the elementary parameters
 
     % Noise generation
-   if(iteration<=2)
+   if(iteration==1)     % for the first iteration, full bandwidth noise is generated
         NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
    else
-        if(CutoffSide=='L')
-           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [FlipFreq, HighFreq], SPL, SPLtype, 1);
+        if(CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
+           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [CutoffFreq, HighFreq], SPL, SPLtype, 1);
         else
-           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, FlipFreq], SPL, SPLtype, 1);
+           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, CutoffFreq], SPL, SPLtype, 1);
         end
    end
+   
 % apply calibration, phase shift and ongoing delay while still in freq domain
 n = NS.Buf.*calibrate(EXP, Fsam, chanChar, -NS.Freq, 1); % last one: complex phase factor; neg freqs: don't bother about freqs outside calib range
 n = n.*exp(2*pi*i*(PhaseShift-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
+
 % go to time domain (complex analytical waveforms) and apply modulation, freq shift & gating.
-
-
 n = ifft(n);
 dt = 1e3/Fsam; % ms sample period
 n = n(1:ceil((GateDelay+BurstDur)/dt)); % throw away unused buffer tail
@@ -194,12 +201,23 @@ end
 if ~isequal(0,FreqShift), % heterodyne
     n = n.*exp(2*pi*i*1e-3*FreqShift*xaxis(n,dt));
 end
+
 % Depending on user preference, store complex analytic waveforms or take real part
 if ~logical(EXP.StoreComplexWaveforms); 
     n = real(n);
 end
+
+% Power level before gating, used as a reference level in signal level correction after gating
+Pp = sum(n.^2); 
+
 % gating
 n = ExactGate(n, Fsam, BurstDur, GateDelay, RiseDur, FallDur);
+
+% Power correction / signal correction
+if(PowerCorr=='Y')
+    n = n.* sqrt(Pp./sum(n.^2)); 
+end
+
 % convert to waveform object & provide heading & trailing silence
 P = CollectInStruct(LowFreq, HighFreq, ConstNoiseSeed, ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
@@ -209,18 +227,6 @@ NsamOnsetDelay = round(OnsetDelay/dt);
 W = Waveform(Fsam, chanChar, NaN, SPL, P, {0 n}, [NsamOnsetDelay 1]);
 W = AppendSilence(W, ISI);
 
-% plotting the FFT of the waveform to test the stimulus
-%     y = fft(W.Samples);
-%     L=length(W.Samples);
-%     y=n;
-%     L=length(n);
-%     f = (0:L-1)*(Fsam/L);     % frequency range
-%     power = abs(y).^2/L; 
-%     figure;
-%     plot(f,power);
-%     xlabel('Frequency');
-%     ylabel('Power');
-%     close;  
 
 
 function Mess = local_test_singlechan(P, FNS);
