@@ -46,7 +46,7 @@ if custom_SR == -1
     SR_BurstDur = 50;
     SR_BurstDur_unit = 'ms';
     SR_ISI = 100;
-    SR_ISI_unit = 'ms'
+    SR_ISI_unit = 'ms';
     SR_unit = 'Spikes/sec';
     DS = setSR(DS, CollectInStruct(SR, SR_unit, SR_ISI, SR_ISI_unit, SR_BurstDur, ...
     SR_BurstDur_unit, SR_duration, SR_duration_unit));
@@ -60,7 +60,7 @@ end
 
 % Reset the DSP program
 pause(10);
-if isequal(Proc,'Geisler'), SpikeCrit = dum; end;
+if isequal(Proc,'Geisler'), SpikeCrit = dum; end
 if SpikeCrit == 0, SpikeCrit = 1; end
 SRStr = ['SR = ' num2str(round(SR,2)) ' spikes/s'];
 THRStr = '';
@@ -105,10 +105,10 @@ NbSPL = size(P.LinAmp,1)/size(P.Freq,1);
 % Set starting SPL
 dynStartSPL = StartSPL;
 
-for ifreq=ifreqs,
+for ifreq=ifreqs
     GUImessage(gcg, ['Measuring threshold at frequency ', num2str(round(Freq(ifreq))) ' Hz']);
     % STOP button action
-    if MyFlag('THRstop'),
+    if MyFlag('THRstop')
         save(DS);
         break; % from loop
     end
@@ -121,23 +121,23 @@ for ifreq=ifreqs,
     [MaxSPL, Atten] = maxSPL(W, EXP);
     SPL             = P.SPLs;
     iSPL            = SPL < MaxSPL(ifreq);  % eric 26/Mar/2019
-    SPL             = SPL(iSPL);    % eric 26/Mar/2019
+    SPL             = SPL(iSPL);            % eric 26/Mar/2019
 
-%     SPL             = SPL(SPL < MaxSPL(ifreq));    
-
-%     LinAmp = P.LinAmp(1:length(SPL),:);
-%     Attenuation = P.Attenuations(1:length(SPL),:);
-    LinAmp          = P.LinAmp(ic(iSPL),:); % eric 26/Mar/2019
+    LinAmp          = P.LinAmp(ic(iSPL),:);         % eric 26/Mar/2019
     Attenuation     = P.Attenuations(ic(iSPL),:);   % eric 26/Mar/2019
-    Thr_lim(ifreq)  = SPL(end); % added by Jan (April 2018) to plot the limit
-
+    Thr_lim(ifreq)  = SPL(end);                     % added by Jan (April 2018) to plot the limit
     
+%     Bug introduced in April 2018 - see correct_ds
+%     SPL             = SPL(SPL < MaxSPL(ifreq));    
+%     LinAmp2 = P.LinAmp(1:length(SPL),:);
+%     Attenuation2 = P.Attenuations(1:length(SPL),:);
+
 %     % Original (before Jan 2018)
 %     SPL = P.SPLs;
 %     LinAmp = P.LinAmp(ic,:);
 %     Attenuation = P.Attenuations(ic,:);
     
-    if ~strcmp(Proc,'Marcel');
+    if ~strcmp(Proc,'Marcel')
         S(ifreq) = feval(['THRrec_' Proc], dev, P.Experiment, Freq(ifreq), BurstDur, ...
             MinSPL, MaxSPL(ifreq), dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
             SPL, Attenuation, LinAmp, P.GUIhandle,P.ISI);
@@ -146,7 +146,7 @@ for ifreq=ifreqs,
             MinSPL, MaxSPL(ifreq), dynStartSPL, StepSPL, DAchan, SpikeCrit, MaxNpres, ...
             SPL, Attenuation, LinAmp, P.GUIhandle);
     end
-    if ~isnan(S(ifreq).Thr),
+    if ~isnan(S(ifreq).Thr)
         if isequal(Proc,'Geisler')
             dynStartSPL = S(ifreq).Thr - 2*StepSPL;
         else
@@ -170,10 +170,12 @@ for ifreq=ifreqs,
     drawnow
     % save data
     DS = addThr(DS,Thr);
-    % keep old save format as backup
-    save([folder(current(experiment)),'\THR_',timestr,'.mat'],'S','-mat');
+    
 end
 
+% keep old save format as backup
+save([folder(current(experiment)),'\THR_',timestr,'.mat'],'S','-mat');
+    
 sys3halt(dev);
 save(DS);
 SetAttenuators(P.Experiment, 120);
@@ -220,8 +222,8 @@ function [SpikeCrit, SR] = local_getSpikeCrit(dev, BurstDur,ISI)
     SpikeTimes = Spike_clock_count/Fsam; % in mili-sec
     
     % calculate the starting time of each block of duration BurstDur
-    Nblocks = floor(15e3/BurstDur);
-    if rem(15e3,BurstDur) ~0 % if the last block of duration BurstDur mili-sec does not fit in the 15sec discard these spikes
+    Nblocks = floor(TotalDur/BurstDur);
+    if rem(15e3,BurstDur) ~= 0 % if the last block of duration BurstDur mili-sec does not fit in the 15sec discard these spikes
         % find the end time of the last full block 
         end_of_last_full_block = Nblocks*BurstDur;
         indices_bad_spikes = find(SpikeTimes>end_of_last_full_block);
@@ -250,6 +252,7 @@ function BlockIndices = local_block_index_per_spike(begin_block_times, SpikeTime
     BlockIndices = [];
     if ~isempty(SpikeTimes)
         for i = 1:length(SpikeTimes)
+            BlockIndices = zeros(1,length(SpikeTimes));
            SpikeTime = SpikeTimes(i);
            BlockIndices(i) = sum(begin_block_times < SpikeTime);
         end
