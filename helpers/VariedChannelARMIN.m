@@ -2,7 +2,7 @@ function NP=VariedChannelARMIN(Title);
 % VariedChannelARMIN - Parameters for the varied channel of ARMIN.
 %   NP=VariedChannelARMIN(Title) returns a GUIpanel NP allowing the 
 %   user to specify seeds and polarities for the varied Channel. 
-%   It also allows the user to select which channel is the varied channel.
+%   It also allows ther user to select which channel is the varied channel.
 %   Guipanel NP has title Title. 
 %
 %   The paramQuery objects contained in F are named: 
