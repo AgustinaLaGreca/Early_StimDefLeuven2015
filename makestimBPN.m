@@ -38,7 +38,13 @@ figh = P.handle.GUIfig;
 
 % Cutoff frequency: add it to stimparam struct P
 P.CutoffFreq=EvalFrequencyStepper(figh, '', P); 
-P.CutoffFreq=[0; P.CutoffFreq]; % Added a placeholder endpoint to the Cutoff frequencies for generating full band noise
+
+% Checks if the user has selected the full band noise as a stimulus
+% Here 0 is added as a placeholder endpoint to CutoffFreq for generating full band noise
+if(P.FullBand=='Y')
+    P.CutoffFreq=[0; P.CutoffFreq]; 
+end
+
 if isempty(P.CutoffFreq), return; end
 Ncond = size(P.CutoffFreq,1); % # conditions
 
@@ -58,9 +64,11 @@ P.IFD = 0; % zero interaural frequency difference
 % mix Freq & SPL sweeps; # conditions = # Freqs times # SPLs. By
 % convention, freq is updated faster. 
 [P.CutoffFreq, P.SPL, P.Ncond_XY] = MixSweeps(P.CutoffFreq, P.SPL);
+
 % P.SPLUnit = 'dB SPL';
+
 % maxNcond = P.Experiment.maxNcond;
-% if prod(P.Ncond_XY)>maxNcond,
+% if prod(P.Ncond_XY)>maxNcond, 
 %     Mess = {['Too many (>' num2str(maxNcond) ') stimulus conditions.'],...
 %         'Increase stepsize(s) or decrease range(s)'};
 %     GUImessage(figh, Mess, 'error', {'StartFreq' 'StepFreq' 'EndFreq' 'StartSPL' 'StepSPL' 'EndSPL' });

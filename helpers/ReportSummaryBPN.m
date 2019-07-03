@@ -96,13 +96,13 @@ for i=1:k+2
         rightString = '';
     end
     
-%   here the code differs from ReportSummary()
-    if(i==2)
+    % here the code differs from ReportSummary()
+    % 0 is the placeholder for full band noise
+    if(xValues(i)==0)   
         Tstr=[Tstr,'  Full Band Noise \n'];
     else
         % Append leftmost string
         Tstr = [Tstr,leftString];
-
         Tstr = [Tstr,'   '];
 
         % Append rightmost string

@@ -64,14 +64,16 @@ CutoffSide = ParamQuery('CutoffSide', 'Select which edge to vary:', '', {'L' 'H'
     '', 'L varies the lower side, making a HPF, and vice versa.');
 PowerCorr = ParamQuery('PowerCorr', 'Power Correction?', '', {'Y' 'N'}, ...
     '', 'Select whether the signal should be corrected to a constant power level or not.');
-
+FullBand = ParamQuery('FullBand', 'Full Band Noise?', '', {'Y' 'N'}, ...
+    '', 'Send Full Band Noise as a stimulus?');
 
 Fsweep = add(Fsweep, StartFreq);
 Fsweep = add(Fsweep, StepFreq, alignedwith(StartFreq));
 Fsweep = add(Fsweep, EndFreq, alignedwith(StepFreq));
 Fsweep = add(Fsweep, AdjustFreq, nextto(StepFreq), [10 0]);
 Fsweep = add(Fsweep, CutoffSide, below(EndFreq), [0 0]);
-Fsweep = add(Fsweep, PowerCorr, below(CutoffSide), [0 0]);        
+Fsweep = add(Fsweep, PowerCorr, below(CutoffSide), [0 0]);
+Fsweep = add(Fsweep, FullBand, below(PowerCorr), [0 0]);
 if ~isequal('notol', Flag),
     Fsweep = add(Fsweep, Tol, alignedwith(AdjustFreq) , [0 -10]);
 end

@@ -155,7 +155,7 @@ for ichan=1:Nchan,
             par_ModFreq(icond), par_ModDepth(icond), par_ModStartPhase(icond), par_ModTheta(icond), ...
             par_ISI(icond), par_OnsetDelay(icond), par_BurstDur(icond), par_RiseDur(icond), par_FallDur(icond), ...
             par_FineDelay(icond), par_GateDelay(icond), par_ModDelay(icond), par_PhaseShift(icond), ...
-            par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, icond, P.PowerCorr);
+            par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, P.PowerCorr);
     end
         P.Waveform(:,ichan) = Q;
 
@@ -172,18 +172,19 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, ...
-    FreqShift, Corr, SPL, SPLtype, CutoffSide, iteration, PowerCorr);
+    FreqShift, Corr, SPL, SPLtype, CutoffSide, PowerCorr);
 % Generate the waveform from the elementary parameters
+% Power correction is done here
 
     % Noise generation
-   if(iteration==1)     % for the first iteration, full bandwidth noise is generated
-        NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
-   else
-        if(CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
+   if~(CutoffFreq==0)     % full bandwidth noise is generated if CutoffFreq is 0, where 0 is just a place holder
+       if(CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
            NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [CutoffFreq, HighFreq], SPL, SPLtype, 1);
         else
            NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, CutoffFreq], SPL, SPLtype, 1);
-        end
+        end 
+   else
+        NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
    end
    
 % apply calibration, phase shift and ongoing delay while still in freq domain
