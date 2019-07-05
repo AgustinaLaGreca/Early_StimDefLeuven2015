@@ -112,30 +112,30 @@ for ifreq=ifreqs
         save(DS);
         break; % from loop
     end
-    ic = (1+(ifreq-1)*NbSPL:ifreq*NbSPL)';
+    ic = ( 1+(ifreq-1)*NbSPL : ifreq*NbSPL )'; %Get the index-range
     % Get correct LinAmp and Attenuations
     
     % Changed by Jan (April 2018) - THR limits from calib included
     W               = P.Waveform;
     EXP             = P.Experiment;
-    [MaxSPL, Atten] = maxSPL(W, EXP);
+    [MaxSPL, Atten] = maxSPL(W, EXP);       % get the max. possible SPL at full open attenuator (calibration dependent)
     SPL             = P.SPLs;
-    iSPL            = SPL < MaxSPL(ifreq);  % eric 26/Mar/2019
-    SPL             = SPL(iSPL);            % eric 26/Mar/2019
-
-    LinAmp          = P.LinAmp(ic(iSPL),:);         % eric 26/Mar/2019
-    Attenuation     = P.Attenuations(ic(iSPL),:);   % eric 26/Mar/2019
+    
+    iSPL            = SPL < MaxSPL(ifreq);  % Hsin-wei & eric 26/Mar/2019
+    SPL             = SPL(iSPL);            % Hsin-wei & eric 26/Mar/2019
+    LinAmp          = P.LinAmp(ic(iSPL),:);         % Hsin-wei & eric 26/Mar/2019
+    Attenuation     = P.Attenuations(ic(iSPL),:);   % Hsin-wei & eric 26/Mar/2019
     Thr_lim(ifreq)  = SPL(end);                     % added by Jan (April 2018) to plot the limit
     
 %     Bug introduced in April 2018 - see correct_ds
-%     SPL             = SPL(SPL < MaxSPL(ifreq));    
-%     LinAmp2 = P.LinAmp(1:length(SPL),:);
-%     Attenuation2 = P.Attenuations(1:length(SPL),:);
+%     SPL           = SPL(SPL < MaxSPL(ifreq));    
+%     LinAmp        = P.LinAmp(1:length(SPL),:);
+%     Attenuation   = P.Attenuations(1:length(SPL),:);
 
 %     % Original (before Jan 2018)
-%     SPL = P.SPLs;
-%     LinAmp = P.LinAmp(ic,:);
-%     Attenuation = P.Attenuations(ic,:);
+%     SPL           = P.SPLs;
+%     LinAmp        = P.LinAmp(ic,:);
+%     Attenuation   = P.Attenuations(ic,:);
     
     if ~strcmp(Proc,'Marcel')
         S(ifreq) = feval(['THRrec_' Proc], dev, P.Experiment, Freq(ifreq), BurstDur, ...
