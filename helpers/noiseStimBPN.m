@@ -150,7 +150,8 @@ for ichan=1:Nchan,
         % are stored in a (iNcond x Nchan) matrix. Use a single index idx 
         % to avoid the cumbersome A(icond,ichan).
         % compute the waveform
-        Q(icond) = local_Waveform(chanStr, Exp, Fsam, ...
+%         [Q(icond),Pp(icond)] 
+        Q(icond)= local_Waveform(chanStr, Exp, Fsam, ...
             par_LowFreq(icond), par_HighFreq(icond), par_CutoffFreq(icond), par_ConstNoiseSeed(icond), ...
             par_ModFreq(icond), par_ModDepth(icond), par_ModStartPhase(icond), par_ModTheta(icond), ...
             par_ISI(icond), par_OnsetDelay(icond), par_BurstDur(icond), par_RiseDur(icond), par_FallDur(icond), ...
@@ -158,6 +159,7 @@ for ichan=1:Nchan,
             par_FreqShift(icond), par_Corr(icond), par_SPL(icond), P.SPLtype, P.CutoffSide, P.PowerCorr);
     end
         P.Waveform(:,ichan) = Q;
+%         P.Pp(:,ichan) = Pp;
 
 end
 P.Duration = SameSize(P.BurstDur, zeros(Ncond,Nchan)); 
@@ -167,6 +169,7 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 
 %===================================================
 %===================================================
+% function  [W, Pp]
 function  W = local_Waveform(chanChar, EXP, Fsam, ...
     LowFreq, HighFreq, CutoffFreq, ConstNoiseSeed, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
@@ -176,17 +179,21 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
 % Generate the waveform from the elementary parameters
 % Power correction is done here
 
-    % Noise generation
-   if~(CutoffFreq==0)     % full bandwidth noise is generated if CutoffFreq is 0, where 0 is just a place holder
-       if(CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
-           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [CutoffFreq, HighFreq], SPL, SPLtype, 1);
-        else
-           NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, CutoffFreq], SPL, SPLtype, 1);
-        end 
-   else
-        NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
-   end
+   % Noise generation - Full BW
+   NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
    
+   if (CutoffFreq~=0) 
+      
+        if (CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
+            loc = NS.Freq >= CutoffFreq; 
+        else
+            loc = NS.Freq <= CutoffFreq;
+        end
+        
+        NS.Buf(~loc) = 0;  
+        
+   end 
+     
 % apply calibration, phase shift and ongoing delay while still in freq domain
 n = NS.Buf.*calibrate(EXP, Fsam, chanChar, -NS.Freq, 1); % last one: complex phase factor; neg freqs: don't bother about freqs outside calib range
 n = n.*exp(2*pi*i*(PhaseShift-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay

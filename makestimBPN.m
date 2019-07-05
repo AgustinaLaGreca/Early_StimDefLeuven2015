@@ -95,6 +95,7 @@ P = noiseStimBPN(P);
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, 'CutoffFreq', 'Cutoff frequency', 'Hz', P.StepFreqUnit);
+% P = sortConditions(P, {'CutoffFreq', 'Pp'}, {'Cutoff frequency','SPL'} ,{'Hz','dB SPL'},{ P.StepFreqUnit,'dB SPL'});
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL, P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
