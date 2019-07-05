@@ -11,7 +11,7 @@ end
 GUImessage(gcg, ' ');
 
 % run makestimTHR with P as argument
-if isempty(P), % obtain info from GUI
+if isempty(P) % obtain info from GUI
     P = GUIval(gcg,'THR');
     P.handle.GUIfig = gcg;
     P.Experiment = current(experiment);
