@@ -20,7 +20,7 @@ ClickStr = ' Click button to select ';
 Fsweep = FrequencyStepperBPN('Cutoff Frequency',EXP);
 
 % Noise
-Noise = NoisePanelBPN('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
+Noise = NoisePanel('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
 
 % % Fix SPL unit
 % noiseChildren = Noise.Children;
