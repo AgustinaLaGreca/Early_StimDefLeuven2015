@@ -182,7 +182,7 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
    % Noise generation - Full BW
    NS = NoiseSpec(Fsam, BurstDur, ConstNoiseSeed, [LowFreq, HighFreq], SPL, SPLtype, 1);
    
-   if (CutoffFreq~=0) 
+   if (CutoffFreq~=0) % Remember - 0 here represents full band noise
       
         if (CutoffSide=='L')  % to check whether to cutoff the lower edge or the higher edge
             loc = NS.Freq >= CutoffFreq; 
@@ -221,7 +221,7 @@ Pp = sum(n.^2);
 % gating
 n = ExactGate(n, Fsam, BurstDur, GateDelay, RiseDur, FallDur);
 
-% Power correction / signal correction
+% Power correction / signal correction for ramping
 if(PowerCorr=='Y')
     n = n.* sqrt(Pp./sum(n.^2)); 
 end

@@ -11,7 +11,7 @@ function Params = stimdefBPN(EXP)
 %
 %    See also stimGUI, stimDefDir, Experiment, makestimBPN.
 %    
-%    Fuction created by Gowtham on 28/06/2019
+%    Function created by Gowtham on 28/06/2019
 
 PairStr = ' Pairs of numbers are interpreted as [left right].';
 ClickStr = ' Click button to select ';
@@ -20,16 +20,20 @@ ClickStr = ' Click button to select ';
 Fsweep = FrequencyStepperBPN('Cutoff Frequency',EXP);
 
 % Noise
-Noise = NoisePanel('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
+Noise = NoisePanelBPN('Noise', EXP,'','Reverse'); % exclude reverse option in noise panel
 
-% Fix SPL unit
-noiseChildren = Noise.Children;
-for ch = 1:length(noiseChildren)
-    if isa(noiseChildren{ch},'ParamQuery') && strcmp(noiseChildren{ch}.Name,'SPL')
-        Noise.Children{ch}.Unit = 'dB SPL';
-        break;
-    end
-end
+% % Fix SPL unit
+% noiseChildren = Noise.Children;
+% for ch = 1:length(noiseChildren)
+%     if isa(noiseChildren{ch},'ParamQuery') && strcmp(noiseChildren{ch}.Name,'SPL')
+%         Noise.Children{ch}.Unit = 'dB SPL';
+%         break;
+%     end
+% %     if isa(noiseChildren{ch},'ParamQuery') && strcmp(noiseChildren{ch}.Name,'TotalSpecSPL')
+% %         Noise.Children{ch}.Unit = 'dB SPL';
+% %         break;
+% %     end
+% end
 
 % ---Durations
 Dur = DurPanel('-', EXP, '', 'nophase'); % exclude phase query in Dur panel
