@@ -61,7 +61,7 @@ P.LinAmp = deal(nan+zeros(prod([NFreq NSPL]),size(P.SPL,2)));
 [P.Attenuations, P.LinAmp] = channelSelect(P.DAC(1),P.Attenuations, P.LinAmp);
 
 % Get right numerical amplitudes and attenuation settings per Freq
-for ifreq=1:NFreq;
+for ifreq=1:NFreq
     
     ic = (1+(ifreq-1)*NSPL:ifreq*NSPL)';
     

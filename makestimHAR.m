@@ -55,6 +55,9 @@ P = harmonicStim(P); % P contains both Experiment (calib etc) & params, includin
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, 'Fcar', 'First fundamental frequency', 'Hz', P.StepFreqUnit);
+% Compute RMS values
+P.RMS = getWaveformsRMS(P.Waveform);
+P.RMSav = mean(P.RMS,1,'omitnan');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);

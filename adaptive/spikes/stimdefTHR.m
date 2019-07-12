@@ -1,4 +1,4 @@
-function Params = stimdefTHR(EXP);
+function Params = stimdefTHR(EXP)
 
 %==========Carrier frequency GUIpanel=====================
 Fsweep = FrequencyStepper('Frequency range', EXP,'','','nobinaural');
