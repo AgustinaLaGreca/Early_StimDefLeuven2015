@@ -175,7 +175,7 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
     ModFreq, ModDepth, ModStartPhase, ModTheta, ...
     ISI, OnsetDelay, BurstDur, RiseDur, FallDur, ...
     FineDelay, GateDelay, ModDelay, PhaseShift, ...
-    FreqShift, Corr, SPL, SPLtype, CutoffSide, PowerCorr);
+    FreqShift, Corr, SPL, SPLtype, CutoffSide, PowerCorr)
 % Generate the waveform from the elementary parameters
 % Power correction is done here
 
@@ -196,7 +196,7 @@ function  W = local_Waveform(chanChar, EXP, Fsam, ...
      
 % apply calibration, phase shift and ongoing delay while still in freq domain
 n = NS.Buf.*calibrate(EXP, Fsam, chanChar, -NS.Freq, 1); % last one: complex phase factor; neg freqs: don't bother about freqs outside calib range
-n = n.*exp(2*pi*i*(PhaseShift-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
+n = n.*exp(2*pi*1i*(PhaseShift-NS.Freq*1e-3*FineDelay)); % apply fine-structure delay
 
 % go to time domain (complex analytical waveforms) and apply modulation, freq shift & gating.
 n = ifft(n);
@@ -207,11 +207,11 @@ if (ModFreq>0) && (ModDepth~=0),
     n = SinMod(n, Fsam, ph0, ModFreq, ModDepth, ModTheta);
 end
 if ~isequal(0,FreqShift), % heterodyne
-    n = n.*exp(2*pi*i*1e-3*FreqShift*xaxis(n,dt));
+    n = n.*exp(2*pi*1i*1e-3*FreqShift*xaxis(n,dt));
 end
 
 % Depending on user preference, store complex analytic waveforms or take real part
-if ~logical(EXP.StoreComplexWaveforms); 
+if ~logical(EXP.StoreComplexWaveforms) 
     n = real(n);
 end
 
@@ -222,8 +222,8 @@ Pp = sum(n.^2);
 n = ExactGate(n, Fsam, BurstDur, GateDelay, RiseDur, FallDur);
 
 % Power correction / signal correction for ramping
-if(PowerCorr=='Y')
-    n = n.* sqrt(Pp./sum(n.^2)); 
+if(PowerCorr=='Y' && Pp>0)          % when cutoff freq=0 and lowFreq =0, CutoffSide = H, Pp is 0, ...
+    n = n.* sqrt(Pp./sum(n.^2));    % which gives an error here as Pp/sum(n.^2)=0/0
 end
 
 % convert to waveform object & provide heading & trailing silence
@@ -237,7 +237,7 @@ W = AppendSilence(W, ISI);
 
 
 
-function Mess = local_test_singlechan(P, FNS);
+function Mess = local_test_singlechan(P, FNS)
 % test whether specified fields of P have single chan values
 Mess = '';
 for ii=1:numel(FNS),
@@ -248,7 +248,7 @@ for ii=1:numel(FNS),
     end
 end
 
-function P = local_genericstimparams(S);
+function P = local_genericstimparams(S)
 % extracting generic stimulus parameters. Note: this only works after
 % SortCondition has been used to add a Presentation field to the
 % stimulus-defining struct S.
