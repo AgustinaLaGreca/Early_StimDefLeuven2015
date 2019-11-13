@@ -102,6 +102,39 @@ end
     OnsetDelay, BurstDur, RiseDur, FallDur, ISI, ...
     FineDelay, GateDelay, ModDelay, SPL, C);
 % find the single sample rate to realize all the waveforms while  ....
+
+% Edited by Gowtham on 31-10-19 to calculate and display the lowest and highest harmonics
+% instead of asking them from the user; P.PanelType and CF were discarded
+    % Formula
+    P.HarLow = ceil(P.FreqLow./P.Fcar);
+    P.HarHigh = floor(P.FreqHigh./P.Fcar);
+    % To display the calculated values on the messenger
+    NF0 = P.Ncond_XY(1);   % i.e. the number of fundamental frequencies
+    Mess0 = ['Hz' newline '------'];
+    Mess1 = ['|  #' newline '------']; 
+    Mess2 = ['Freq' newline '------'];
+    Mess3 = ['|  #' newline '------'];
+    Mess4 = ['Freq' newline '------'];
+    for n=1:NF0
+        Mess0 = [Mess0 newline vector2str(P.Fcar(n),6)];
+        Mess1 = [Mess1 newline '|  ' vector2str(P.HarLow(n),6)];
+        Mess2 = [Mess2 newline vector2str((P.Fcar(n)*P.HarLow(n)),6)];
+        Mess3 = [Mess3 newline '|  ' vector2str(P.HarHigh(n),6)];
+        Mess4 = [Mess4 newline vector2str(((P.Fcar(n)*P.HarHigh(n))),6)];   
+    end
+    figh=P.GUIhandle;
+    MM = GUImessenger(figh,['FF']);
+    report(MM(1),Mess0);
+    MM = GUImessenger(figh,['HNL']);
+    report(MM(1),Mess1);
+    MM = GUImessenger(figh,['HFL']);
+    report(MM(1),Mess2);
+    MM = GUImessenger(figh,['HNH']);
+    report(MM(1),Mess3);
+    MM = GUImessenger(figh,['HFH']);
+    report(MM(1),Mess4);
+% end of edit 31-10-19
+
 Fsam = sampleRate(Fcar*max(max([P.HarLow:P.HarHigh]),1), P.Experiment); % accounting for recording requirements minADCrate
 % now compute the stimulus waveforms condition by condition, ear by ear.
 [Ncond, Nchan] = size(Fcar);
@@ -116,9 +149,9 @@ for ichan=1:Nchan,
         % evaluate cyclic storage to save samples
         
         % compute the waveform
-        w = local_Waveform(P.TypePanel,chanStr, P.Experiment, Fsam, ISI(idx), ...
+        w = local_Waveform(chanStr, P.Experiment, Fsam, ISI(idx), ...
             FineDelay(idx), GateDelay(idx), OnsetDelay(idx), BurstDur(idx), RiseDur(idx), FallDur(idx), ...
-            Fcar(idx),P.CF, P.HarLow, P.HarHigh, P.FreqLow, P.FreqHigh, C(idx), SPL(idx), ...
+            Fcar(idx),P.HarLow, P.HarHigh, P.FreqLow, P.FreqHigh, C(idx), SPL(idx), ...
             P.AddNoise, ...
             P.NoiseLowFreq, P.NoiseHighFreq, P.NoiseSPL, P.NoiseSeed);
         P.Waveform(icond,ichan) = w;
@@ -131,9 +164,9 @@ P.GenericParamsCall = {fhandle(mfilename) struct([]) 'GenericStimParams'};
 
 %===================================================
 %===================================================
-function  [W, Fcar] = local_Waveform(TypePanel, DAchan, EXP, Fsam, ISI, ...
+function  [W, Fcar] = local_Waveform(DAchan, EXP, Fsam, ISI, ...
     FineDelay, GateDelay, OnsetDelay, BurstDur, RiseDur, FallDur, ...
-    Fcar, CF, LowHarmonic, HighHarmonic, LowFreq,HighFreq,C, SPL, AddNoise, NoiseLowFreq, NoiseHighFreq, NoiseSPL, NoiseSeed);
+    Fcar, LowHarmonic, HighHarmonic, LowFreq,HighFreq,C, SPL, AddNoise, NoiseLowFreq, NoiseHighFreq, NoiseSPL, NoiseSeed);
 % Generate the waveform from the elementary parameters
 %=======TIMING, DURATIONS & SAMPLE COUNTS=======
 % get sample counts of subsequent segments
