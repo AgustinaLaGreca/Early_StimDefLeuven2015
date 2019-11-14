@@ -75,7 +75,7 @@ FreqLowest = ParamQuery('FreqLow', 'LowFreq:', '1000', 'Hz', ...
 % HarHighest = ParamQuery('HarHigh', 'Highest Har:', '20', '#', ...
 %     'rreal','Highest Harmonic in the stimulus.');
 
-InformUser=messenger([Prefix 'InformUser'], 'The harmonics are caluclated automatically',1);
+InformUser=messenger([Prefix 'InformUser'], 'The harmonics are calculated automatically',1);
 FundaFrequency=messenger([Prefix 'FundaFreq'], 'F0   ',1);
 HarLowest=messenger([Prefix 'HarLow'], 'Lowest Har   ',1);
 HarHighest=messenger([Prefix 'HarHigh'], 'Highest Har   ',1);
