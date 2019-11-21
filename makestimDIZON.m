@@ -46,7 +46,7 @@ Ncond = numel(P.ITD);
 P.WavePhase = 0;
 
 % Durations & PlayTime; this also parses ITD/ITDtype and adds ...
-[okay, P]=EvalDurPanel(figh, P, Ncond);% ... FineITD, GateITD, ModITD fields to P
+[okay, P]=EvalDurPanelDIZON(figh, P, Ncond);% ... FineITD, GateITD, ModITD fields to P
 if ~okay, return; end
 
 % Determine sample rate and actually generate the calibrated waveforms
