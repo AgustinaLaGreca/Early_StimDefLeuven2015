@@ -23,22 +23,20 @@ iCond = iCond(sort(I));
 x = P.Presentation.x;
 y = P.Presentation.Y;
     
-Tstr = ['-- F1 on L ----------- F2 on R --------- \n'];
+Tstr = ['-- F2 ------------------ L1 -------------- \n'];
 
-Tstr=[Tstr,tablePrint(P.DAC,iCond,P.(x.FieldName),P.(y.FieldName))];
+Tstr=[Tstr,tablePrint(P.DAC,iCond,P.(x.FieldName),P.(y.FieldName),P.F1)];
 
 % report
 M = GUImessenger(figh, 'Summary');
 report(M,sprintf(Tstr));
 end
 
-function Tstr=tablePrint(DAC,iCond,xValues,yValues)
+function Tstr=tablePrint(DAC,iCond,xValues,yValues,F1)
 [k, l] = size(xValues);
 xValues = sortValues(xValues,iCond);
+yValues = sortValues(yValues,iCond);
 
-if nargin==4
-    yValues = sortValues(yValues,iCond);
-end
 Tstr = '';
 
 % Very ugly way to align all numbers correctly
