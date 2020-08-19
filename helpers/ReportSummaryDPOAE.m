@@ -1,4 +1,4 @@
-function ReportSummary(figh, P);
+function ReportSummary(figh, P, P2);
 % ReportSummary - compute total play time and report it to Summary panel 
 %     T=ReportSummary(figh, Ncond, Nrep, ISI, totBaseline) computes total 
 %     play time T (in seconds) from the number of conditions Ncond, the number of 
@@ -22,33 +22,45 @@ iCond = iCond(sort(I));
 
 x = P.Presentation.x;
 y = P.Presentation.Y;
-    
-Tstr = ['-- F2 ------------------ L1 -------------- \n'];
 
-Tstr=[Tstr,tablePrint(P.DAC,iCond,P.(x.FieldName),P.(y.FieldName),P.F1)];
+x2 = P2.Presentation.x;
+y2 = P2.Presentation.Y;
+
+
+Tstr = ['----- F1   /   L1   --------   F2  /   L2 ------\n'];
+
+
+Tstr=[Tstr,tablePrint(P.DAC,iCond,P.(x.FieldName),P.(y.FieldName),P.(x2.FieldName),P.(y2.FieldName))];
 
 % report
 M = GUImessenger(figh, 'Summary');
 report(M,sprintf(Tstr));
 end
 
-function Tstr=tablePrint(DAC,iCond,xValues,yValues,F1)
+function Tstr=tablePrint(DAC,iCond,xValues,yValues,x2Values,y2Values)
 [k, l] = size(xValues);
 xValues = sortValues(xValues,iCond);
 yValues = sortValues(yValues,iCond);
 
+x2Values = sortValues(x2Values,iCond);
+y2Values = sortValues(y2Values,iCond);
 Tstr = '';
 
 % Very ugly way to align all numbers correctly
 for i=1:k+2
     
-        leftString = addPadding(num2str(xValues(i,1),5),14);
-        rightString = addPadding(num2str(yValues(i,2),5),13);
+        leftString = addPadding(num2str(x2Values(i,1),5),6);
+        leftString = [leftString, '/ ', addPadding(num2str(yValues(i,1),5),6)];
+        
+        rightString = addPadding(num2str(xValues(i,2),5),6);
+        rightString = [rightString, '/ ', addPadding(num2str(y2Values(i,2),5),6)];
+    
 
     if ~isempty(strfind(leftString,'NaN')) || ~isempty(strfind(rightString,'NaN'))
         leftString = '                    BASELINE';
         rightString = '';
     end
+    
     % Append leftmost string
     Tstr = [Tstr,leftString];
     
