@@ -33,7 +33,7 @@ Ratio = ParamQuery([Prefix 'Ratio'], 'Ratio (F2/F1)     ::', '1.50', '', ...
 %     'rreal/positive', 'Ratio determines F1. ', 1);
 % RatioBegin=messenger([Prefix 'RatioBegin'], ':1',1);
 
-Freq2=messenger([Prefix 'F2Msg'], 'Frequency 2 (R)  : [******] Hz to [*******] Hz ',2);
+Freq2=messenger([Prefix 'F2Msg'], 'Frequency 2 (R)  : [******] Hz to [*******] Hz ',4);
 DAC = ParamQuery([Prefix 'DAC'], 'DAC:', '', DACstr, '', [ ...
     'F1 and F2 are played on Left/Right (or)', char(10), 'F1 played on Left and F2 on Right'], ...
     1);
@@ -50,8 +50,9 @@ freqPanel = add(freqPanel,AdjustFreq,'below',[0 -8]);
 % freqPanel = add(freqPanel,RatioSteps,below(RatioEnd));
 
 freqPanel = add(freqPanel,Ratio,below(EndFreq), [0 10]);
+
+freqPanel = add(freqPanel,DAC,'below', [50 0]);
 freqPanel = add(freqPanel,Freq2,'below', [0 10]);
-freqPanel = add(freqPanel,DAC,'below', [80 0]);
 
 % freqPanel = add(freqPanel,DAC,'nextto',[15 0]);
 % freqPanel = add(freqPanel,MaxSPL,['below ' Prefix 'SPL'],[17 0]);

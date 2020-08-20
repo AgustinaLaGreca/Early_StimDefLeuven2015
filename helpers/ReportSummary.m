@@ -62,7 +62,7 @@ Tstr = '';
 % Very ugly way to align all numbers correctly
 for i=1:k+2
     
-    if nargin=>4
+    if nargin==4
         leftString = addPadding(num2str(xValues(i,1),5),6);
         rightString = addPadding(num2str(xValues(i,2),5),6);
         leftString = [leftString, '/ ', addPadding(num2str(yValues(i,1),5),6)];
