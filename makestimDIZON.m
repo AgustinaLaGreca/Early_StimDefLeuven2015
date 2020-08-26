@@ -1,16 +1,16 @@
-function P2=makestimITD(P);
-% MakestimITD - stimulus generator for ITD stimGUI
-%    P=MakestimITD(P), where P is returned by GUIval, generates the stimulus
+function P2=makestimDIZON(P);
+% makestimITD - stimulus generator for DIZON stimGUI
+%    P=MakestimDIZON(P), where P is returned by GUIval, generates the stimulus
 %    specified in P. MakestimITD is typically called by StimGuiAction when
 %    the user pushes the Check, Play or PlayRec button.
-%    MakestimITD does the following:
+%    MakestimDIZON does the following:
 %        * Complete check of the stimulus parameters and their mutual
 %          consistency, while reporting any errors
 %        * Compute the stimulus waveforms
 %        * Computation and broadcasting info about # conditions, total
 %          stimulus duration, Max SPL, etc.
 %
-%    MakestimITD renders P ready for D/A conversion by adding the following 
+%    MakestimDIZON renders P ready for D/A conversion by adding the following 
 %    fields to P
 %            Fsam: sample rate [Hz] of all waveforms. This value is
 %                  determined by the stimulus spectrum, but also by
@@ -33,8 +33,22 @@ figh = P.handle.GUIfig;
 % report any problems to the GUI and return [] or false in case of
 % problems.
 
-% SAM (pass Fcar to enable checking of out-of-freq-range sidebands)
-okay=EvalSAMpanel(figh,P,P.Fcar);
+% Noise parameters (SPL cannot be checked yet)
+[okay, ~,P] = EvalNoisePanel(figh, P);
+if ~okay, return; end
+
+if P.DAC(1)=='L'||P.DAC(1)=='R',
+    Mess = {['The stimulus is binaural'],...
+        'Change the experiment settings to binaural'};
+    GUImessage(figh, Mess, 'error', {'DAC' });
+    return;
+end
+
+% no heterodyning for this protocol
+P.IFD = 0; % zero interaural frequency difference
+
+% Noise parameters (SPL cannot be checked yet)
+[okay, P.NoiseSeed] = EvalNoisePanel(figh, P);
 if ~okay, return; end
 
 % Phase: add it to stimparam struct P
@@ -49,15 +63,17 @@ P.WavePhase = 0;
 [okay, P]=EvalDurPanelDIZON(figh, P, Ncond);% ... FineITD, GateITD, ModITD fields to P
 if ~okay, return; end
 
+[P.ModFreq, P.ModDepth, P.ModStartPhase, P.ModTheta, P.IPD] = deal(0);
+
 % Determine sample rate and actually generate the calibrated waveforms
-P = toneStimDIZON(P); % P contains both Experiment (calib etc) & params, including P.Fcar 
+P = noiseStimDIZON(P); % P contains both Experiment (calib etc) & params, including P.Fcar 
 
 % Sort conditions, add baseline waveforms (!), provide info on varied parameter etc
 P = sortConditions(P, 'ITD', 'ITD', 'ms', 'lin');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
-okay=EvalSPLpanel(figh,P, mxSPL, P.Fcar);
+okay=EvalSPLpanel(figh,P, mxSPL, []);
 if ~okay, return; end
 
 % Summary
