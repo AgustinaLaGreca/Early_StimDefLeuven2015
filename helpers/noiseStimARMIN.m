@@ -143,7 +143,7 @@ for ichan=1:Nchan,
     par_LowPolarity = LowPolarity((ichan-1)*Ncond+1:ichan*Ncond);
     par_HighPolarity = HighPolarity((ichan-1)*Ncond+1:ichan*Ncond);
     par_ConstPolarity = ConstPolarity((ichan-1)*Ncond+1:ichan*Ncond);
-    parfor icond=1:Ncond,
+    for icond=1:Ncond,
         % select the current element from the param matrices. All params ...
         % are stored in a (iNcond x Nchan) matrix. Use a single index idx 
         % to avoid the cumbersome A(icond,ichan).
