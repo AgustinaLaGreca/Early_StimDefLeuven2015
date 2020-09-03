@@ -70,7 +70,7 @@ if ~okay, return; end
 [P.ModFreq, P.ModDepth, P.ModStartPhase, P.ModTheta, P.IPD] = deal(0);
 
 % Use generic noise generator to generate waveforms
-P = noiseStim(P)
+P = noiseStim(P);
 
 % Sort conditions, add baseline waveforms (!), provide info on varied
 % parameter etc
