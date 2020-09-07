@@ -50,12 +50,12 @@ P.echoILDUnit = P.SPLUnit;
 [okay, ~,P] = EvalNoisePanel(figh, P);
 if ~okay, return; end
  
-if P.DAC(1)=='L'||P.DAC(1)=='R',
-    Mess = {['The stimulus is binaural'],...
-        'Change the experiment settings to binaural'};
-    GUImessage(figh, Mess, 'error', {'DAC' });
-    return;
-end
+% if P.DAC(1)=='L'||P.DAC(1)=='R',
+%     Mess = {['The stimulus is binaural'],...
+%         'Change the experiment settings to binaural'};
+%     GUImessage(figh, Mess, 'error', {'DAC' });
+%     return;
+% end
 
 % no heterodyning for this protocol
 P.IFD = 0; % zero interaural frequency difference
@@ -86,7 +86,7 @@ P = sortConditions(P, 'ITD', 'ITD', 'ms', 'lin');
 
 % Levels and active channels (must be called *after* adding the baseline waveforms)
 [mxSPL P.Attenuation] = maxSPL(P.Waveform, P.Experiment);
-okay=EvalSPLpanel(figh,P, mxSPL, []);
+okay=EvalSPLpanelZUREK(figh,P, mxSPL, []);
 if ~okay, return; end
 
 % Summary

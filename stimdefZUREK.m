@@ -21,7 +21,7 @@ Dur = DurPanel('Durations', EXP, '', 'basicsonly');
 % ---Presentation
 Pres = PresentationPanel;
 % ---Summary
-summ = Summary(26);
+summ = Summary(27);
 
 %====================
 Params=GUIpiece('Params'); % upper half of GUI: parameters
