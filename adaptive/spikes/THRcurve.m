@@ -250,10 +250,9 @@ end
 
 function BlockIndices = local_block_index_per_spike(begin_block_times, SpikeTimes)
     BlockIndices = [];
-%     BlockIndices = zeros(1,length(SpikeTimes)); %error here
     if ~isempty(SpikeTimes)
         for i = 1:length(SpikeTimes)
-            
+%            BlockIndices = zeros(1,length(SpikeTimes));
            SpikeTime = SpikeTimes(i);
            BlockIndices(i) = sum(begin_block_times < SpikeTime);
         end
