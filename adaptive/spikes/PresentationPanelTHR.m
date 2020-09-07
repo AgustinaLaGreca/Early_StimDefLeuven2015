@@ -16,7 +16,7 @@ ISI = ParamQuery('ISI', 'ISI:', '15000', 'ms', ...
 Order = ParamQuery('Order', 'Order:', '', {'Forward' 'Reverse'}, ...
     '', 'Order of frequency conditions.',1);
 CustSR = ParamQuery('CustSR', 'Custom SR:', '100', 'Spk/sec', ...
-    'rreal', 'Custom Spike rate.',1);
+    'rreal', ['Specification of SR when using the option ''REC: No SR'''],1); % Gowtham 7/9/20: Updated tooltip
 % add to panel
 Pres = GUIpanel('Pres', 'Presentation');
 Pres = add(Pres, BeginSPL);
@@ -26,7 +26,7 @@ Pres = add(Pres, ISI, 'aligned', [0 5]);
 Pres = add(Pres, Order, 'aligned', [0 5]);
 Pres = add(Pres, Proc, nextto(BeginSPL), [10 0]);
 Pres = add(Pres, SpikeCrit, 'aligned', [0 5]);
-Pres = add(Pres,CustSR, below(SpikeCrit),[0 5]);
+Pres = add(Pres,CustSR, alignedwith(SpikeCrit),[0 5]);
 
 
 

@@ -52,7 +52,7 @@ for i=1:MaxNpres
     % Record Spikes
     [toneEvokedSpikes postToneSpikes] = local_getNbSpikes(dev, iAmp, DAchan, LinAmpL, LinAmpR, BurstDur,ISI);
     %postToneSpikes = local_getNbSpikes(dev, 0, DAchan, LinAmpL, LinAmpR, BurstDur,ISI);
-    toneEvokedSpikes,postToneSpikes,SpikeCrit
+%     toneEvokedSpikes,postToneSpikes,SpikeCrit         % Gowtham 7/9/20: Debugging code removed
     % Compare difference and adjust accordingly
     SpikeDiff = toneEvokedSpikes - postToneSpikes;
     if SpikeDiff <= SpikeCrit

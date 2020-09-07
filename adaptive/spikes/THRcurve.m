@@ -59,7 +59,9 @@ else
 end
 
 % Reset the DSP program
-pause(10);
+% pause(10);            %   Removed because the reason for using it was not
+                        %   and the program works fine without it.
+                        %   Gowtham & Pxj 4/09/20
 if isequal(Proc,'Geisler'), SpikeCrit = dum; end
 if SpikeCrit == 0, SpikeCrit = 1; end
 SRStr = ['SR = ' num2str(round(SR,2)) ' spikes/s'];
@@ -109,7 +111,7 @@ for ifreq=ifreqs
     GUImessage(gcg, ['Measuring threshold at frequency ', num2str(round(Freq(ifreq))) ' Hz']);
     % STOP button action
     if MyFlag('THRstop')
-        save(DS);
+%         save(DS);         % Gowtham 7/9/20: Removed saving here because this causes the dataset to be saved twice
         break; % from loop
     end
     ic = ( 1+(ifreq-1)*NbSPL : ifreq*NbSPL )'; %Get the index-range
@@ -177,6 +179,21 @@ end
 save([folder(current(experiment)),'\THR_',timestr,'.mat'],'S','-mat');
     
 sys3halt(dev);
+
+% Gowtham 7/9/20: Added option to save interrupted dataset
+if MyFlag('THRstop')
+    YN = questdlg('Save interrupted recording?', 'User interrupt during recording.', 'Yes', 'No', 'Yes');
+    if isequal('No', YN), % clean up any temp data on disk & beat it
+        cleanup(DS);
+        GUImessage(gcg, {'Recording cancelled',  'no data saved.'});
+        okay=true; 
+    else
+        save(DS);     
+    end
+    SetAttenuators(P.Experiment, 120);
+    return; 
+end
+
 save(DS);
 SetAttenuators(P.Experiment, 120);
 end

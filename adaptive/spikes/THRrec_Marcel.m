@@ -33,7 +33,7 @@ Thr = NaN;
 dAmp = 2;
 for i=1:MaxNpres
     % STOP button action
-    disp(i);
+%     disp(i);          % Gowtham 7/9/20: Debugging code removed
     if MyFlag('THRstop'),
          break; % from loop
     end

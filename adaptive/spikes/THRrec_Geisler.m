@@ -53,7 +53,7 @@ for i=1:MaxNpres
     % save log
     iAmpHist(end+1) = iAmp;
     SpikeDiffHist(end+1) = sign(SpikeCrit - NbSpikes);
-    NbSpikes,SpikeCrit,SpikeDiffHist(i)
+%     NbSpikes,SpikeCrit,SpikeDiffHist(i)           % Gowtham 7/9/20: Debugging code removed
     if i > 1
         if SpikeDiffHist(i) == 0
             NbCrossings = NbCrossings + 1;
