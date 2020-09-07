@@ -46,53 +46,63 @@ end
 
 % check if stimulus frequencies are within range [CT.minFreq CT.maxFreq]
 somethingwrong=1;
-if strcmp(P.TypePanel,'F0')
-    if any(P.StartFreq<EXP.minStimFreq) ,
-        GUImessage(figh, {'Start frequency violates min stim frequency'...
-            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
-    elseif any(P.EndFreq<EXP.minStimFreq) ,
-        GUImessage(figh, {'End frequency violates min stim frequency'...
-            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
-    elseif any(P.StartFreq>EXP.maxStimFreq) ,
-        GUImessage(figh, {'Start frequency exceeds max stim frequency'...
-            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
-    elseif any(P.EndFreq>EXP.maxStimFreq) ,
-        GUImessage(figh, {'End frequency exceeds max stim frequency'...
-            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
+
+% Edits by Gowtham 31-10-19
+% 1. Since the option to switch between F0 and Harmonics was removed, the
+%    below code is altered accordingly
+% 2. (As directed by Pxj) The code was altered to allow Starting and Ending 
+%    Frequencies of fundamental frequencies beyond EXP's calibartated frequency range. 
+%    Instead the Lowest and Highest Frequencies are checked.
+
+% if strcmp(P.TypePanel,'F0')
+
+    if any(P.FreqLow<EXP.minStimFreq) ,
+        GUImessage(figh, {'Lowest frequency violates min stim frequency'...
+            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'FreqLow']);
+    elseif any(P.FreqHigh<EXP.minStimFreq) ,
+        GUImessage(figh, {'Highest frequency violates min stim frequency'...
+            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'FreqHigh']);
+    elseif any(P.FreqLow>EXP.maxStimFreq) ,
+        GUImessage(figh, {'Lowest frequency exceeds max stim frequency'...
+            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'FreqLow']);
+    elseif any(P.FreqHigh>EXP.maxStimFreq) ,
+        GUImessage(figh, {'Highest frequency exceeds max stim frequency'...
+            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'FreqHigh']);
     else, % passed all the tests..
         somethingwrong=0;
     end
     if somethingwrong, return; end
-else
-    if any(P.CF/P.StartFreq<EXP.minStimFreq),
-        GUImessage(figh, {'Start frequency violates min stim frequency'...
-            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
-    elseif any(P.CF/P.EndFreq<EXP.minStimFreq),
-        GUImessage(figh, {'End frequency violates min stim frequency'...
-            ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
-    elseif  any(P.CF/P.StartFreq>EXP.maxStimFreq),
-        GUImessage(figh, {'Start frequency exceeds max stim frequency'...
-            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
-    elseif any(P.CF/P.EndFreq>EXP.maxStimFreq),
-        GUImessage(figh, {'End frequency exceeds max stim frequency'...
-            ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
-    else, % passed all the tests..
-        somethingwrong=0;
-    end
-    if somethingwrong, return; end
-end
+
+% else
+%     if any(P.CF/P.StartFreq<EXP.minStimFreq),
+%         GUImessage(figh, {'Start frequency violates min stim frequency'...
+%             ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
+%     elseif any(P.CF/P.EndFreq<EXP.minStimFreq),
+%         GUImessage(figh, {'End frequency violates min stim frequency'...
+%             ['of ' num2str(EXP.minStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
+%     elseif  any(P.CF/P.StartFreq>EXP.maxStimFreq),
+%         GUImessage(figh, {'Start frequency exceeds max stim frequency'...
+%             ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'StartFreq']);
+%     elseif any(P.CF/P.EndFreq>EXP.maxStimFreq),
+%         GUImessage(figh, {'End frequency exceeds max stim frequency'...
+%             ['of ' num2str(EXP.maxStimFreq) ' Hz']},'error', [Prefix 'EndFreq']);
+%     else, % passed all the tests..
+%         somethingwrong=0;
+%     end
+%     if somethingwrong, return; end
+% end
 
 % delegate the computation to generic EvalStepper
 StepMode = P.StepFreqUnit;
-if isequal('Hz or #', StepMode), StepMode = 'Linear'; end
+if isequal('Hz', StepMode), StepMode = 'Linear'; end
 
-if strcmp(P.TypePanel,'Harmonic Number')
-    [Freq, Mess]=EvalStepperHarmonics(P.CF,P.StartFreq,P.StepFreq, P.EndFreq, StepMode, ...
-    P.AdjustFreq, [EXP.minStimFreq EXP.maxStimFreq], EXP.maxNcond);
-else
+% if strcmp(P.TypePanel,'Harmonic Number')
+%     [Freq, Mess]=EvalStepperHarmonics(P.CF,P.StartFreq,P.StepFreq, P.EndFreq, StepMode, ...
+%     P.AdjustFreq, [EXP.minStimFreq EXP.maxStimFreq], EXP.maxNcond);
+% else
     [Freq, Mess]=EvalStepper(P.StartFreq, P.StepFreq, P.EndFreq, StepMode, ...
-    P.AdjustFreq, [EXP.minStimFreq EXP.maxStimFreq], EXP.maxNcond);
-end
+    P.AdjustFreq, [P.StartFreq P.EndFreq], EXP.maxNcond);
+% end
 if isequal('nofit', Mess),
     Mess = {'Stepsize does not exactly fit Frequency bounds', ...
         'Adjust Frequency parameters or toggle Adjust button.'};

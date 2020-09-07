@@ -38,15 +38,20 @@ figh = P.handle.GUIfig;
 
 
 P.Fcar=EvalFrequencyStepperSCHR(figh, '', P); 
-if strcmp(P.TypePanel,'F0')
-invalid = P.HarLow*P.Fcar > P.FreqHigh;
-if invalid
-    Mess = {['Specified lowest harmonic number ' num2str(P.HarLow) ' of fundamental frequencies ' num2str(P.Fcar(invalid)') 'Hz' ' is greater than specified highest frequency limit ' num2str(P.FreqHigh) 'Hz.'],...
-        'Increase highest frequency limit or decrease lowest harmonic number or change range of studied fundamental frequencies '};
-    GUImessage(figh, Mess, 'error', {'HarLow' 'FreqHigh' 'StartFreq' 'StepFreq' 'EndFreq'});
-    return;
-end
-end
+
+% Edited by Gowtham 31-10-19 
+% Delelted this because harmonics are calculated and not entered by the user
+% if strcmp(P.TypePanel,'F0')
+% invalid = P.HarLow*P.Fcar > P.FreqHigh;
+% if invalid
+%     Mess = {['Specified lowest harmonic number ' num2str(P.HarLow) ' of fundamental frequencies ' num2str(P.Fcar(invalid)') 'Hz' ' is greater than specified highest frequency limit ' num2str(P.FreqHigh) 'Hz.'],...
+%         'Increase highest frequency limit or decrease lowest harmonic number or change range of studied fundamental frequencies '};
+%     GUImessage(figh, Mess, 'error', {'HarLow' 'FreqHigh' 'StartFreq' 'StepFreq' 'EndFreq'});
+%     return;
+% end
+% end
+% End of edit 31-10-19
+
 if isempty(P.Fcar), return; end
 Ncond = size(P.Fcar,1); % # conditions
 
